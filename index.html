@@ -5,17 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a4fa0">
-<title>Victory App — Daimoku Chanting</title>
+<title>Victory App</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-/* ── THEME VARIABLES ─────────────────────────────── */
 :root{
   --blue:#1a4fa0;--blue-l:#2d6bc4;--blue-d:#0d2f6e;
   --gold:#f0b429;--gold-l:#f7d070;--gold-d:#a07800;
   --red:#c9271a;--green:#1a7a40;
   --nav:72px;--head:58px;--safe:env(safe-area-inset-bottom,0px);--r:16px;
-  /* Light theme (default) */
   --bg:#f4f6fb;--card:#fff;--card2:#eef5ff;--text:#1a1f2e;--muted:#6b7280;
   --border:rgba(26,79,160,.14);--shadow:0 2px 18px rgba(26,79,160,.09);
   --hd-bg:var(--blue);--hd-txt:#fff;
@@ -29,25 +28,15 @@ body.dark{
   --bg:#0e1320;--card:#19223a;--card2:#152540;--text:#e2e8f8;--muted:#8892b0;
   --border:rgba(100,140,220,.18);--shadow:0 2px 18px rgba(0,0,0,.4);
   --hd-bg:#0a1a40;--hd-txt:#e2e8f8;
-  /* Stopwatch card stays light blue in dark mode too */
   --tcbg1:#d0e6ff;--tcbg2:#e8f2ff;--tctext:#1a4fa0;--tcmuted:rgba(26,79,160,.55);
   --pbtrack:rgba(26,79,160,.18);
   --dm-empty:#1a3258;--dm-grid:#0f1e35;
 }
-body.large-font{
-  --fs-base:19px;--fs-sm:16px;--fs-xs:13px;--fs-lg:24px;--fs-xl:62px;
-  --fs-nav:12px;--ni-size:30px;
-}
-body.xlarge-font{
-  --fs-base:22px;--fs-sm:19px;--fs-xs:15px;--fs-lg:28px;--fs-xl:70px;
-  --fs-nav:13px;--ni-size:34px;
-}
-
+body.large-font{--fs-base:19px;--fs-sm:16px;--fs-xs:13px;--fs-lg:24px;--fs-xl:62px;--fs-nav:12px;--ni-size:30px}
+body.xlarge-font{--fs-base:22px;--fs-sm:19px;--fs-xs:15px;--fs-lg:28px;--fs-xl:70px;--fs-nav:13px;--ni-size:34px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:var(--fs-base)}
 body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;transition:background .3s,color .3s}
-
-/* ── HEADER ──────────────────────────────────────── */
 .hd{height:var(--head);background:var(--hd-bg);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;z-index:10}
 .hd-t{color:var(--hd-txt);font-family:'Noto Serif JP',serif;font-size:20px;font-weight:700;letter-spacing:.03em}
 .hd-right{display:flex;align-items:center;gap:10px}
@@ -55,64 +44,47 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:r
 .gear-btn svg{width:20px;height:20px;stroke:var(--hd-txt);stroke-width:1.8;fill:none}
 .schip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 12px;cursor:pointer;border:none}
 .schip .sn{color:var(--hd-txt);font-size:15px;font-weight:700}.schip .sf{font-size:19px}
-
-/* ── PAGES ───────────────────────────────────────── */
 .pages{flex:1;overflow:hidden;position:relative}
 .page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;padding-bottom:calc(var(--nav) + var(--safe) + 16px)}
-.page.active{display:block}.pc{padding:14px}
-.page::-webkit-scrollbar{width:0}
-
-/* ── NAV (4 items) ───────────────────────────────── */
+.page.active{display:block}.pc{padding:14px}.page::-webkit-scrollbar{width:0}
 .nav{height:calc(var(--nav) + var(--safe));background:var(--card);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:6px;flex-shrink:0;z-index:10}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;border:none;background:none;outline:none;transition:all .2s}
 .ni svg{stroke:var(--muted);stroke-width:1.5;fill:none;transition:stroke .2s;width:var(--ni-size);height:var(--ni-size)}
-.ni span{font-size:var(--fs-nav);color:var(--muted);font-weight:600;transition:color .2s}
+.ni span{font-size:var(--fs-nav);color:var(--muted);font-weight:600}
 .ni.active svg{stroke:var(--blue)}.ni.active span{color:var(--blue)}
-
-/* ── SHARED COMPONENTS ───────────────────────────── */
 .card{background:var(--card2);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px;border:1px solid var(--border)}
 .ct{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
 .tabs{display:flex;background:var(--card);border-radius:12px;padding:4px;gap:2px;margin-bottom:14px;border:1px solid var(--border)}
 .tb{flex:1;padding:9px 0;border:none;background:none;border-radius:9px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .tb.active{background:var(--blue);color:#fff}
-
-/* ── PAGE 1: CHANT ───────────────────────────────── */
-.tcard{background:linear-gradient(145deg,var(--tcbg1) 0%,var(--tcbg2) 100%);border-radius:20px;padding:26px 18px 22px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(26,79,160,.2)}
-.tcard::before{content:'南無妙法蓮華經';position:absolute;top:10px;left:0;right:0;font-family:'Noto Serif JP',serif;font-size:10px;color:rgba(26,79,160,.18);letter-spacing:.35em;text-align:center}
-.tdate{font-size:var(--fs-sm);font-weight:600;color:var(--tctext);opacity:.7;margin-bottom:2px;letter-spacing:.02em}
-.td{font-size:var(--fs-xl);font-weight:300;color:var(--tctext);letter-spacing:.04em;font-variant-numeric:tabular-nums;line-height:1;margin:4px 0 4px}
-.tl{font-size:10px;color:var(--tcmuted);letter-spacing:.18em;margin-bottom:14px}
-
-/* Three-segment progress bar */
-.pb-outer{background:var(--pbtrack);border-radius:8px;height:10px;margin-bottom:6px;overflow:hidden;display:flex}
-.pb-seg{height:100%;transition:width .8s ease,opacity .4s;width:0}
-.pb-red{background:#c9271a;border-radius:8px 0 0 8px}
-.pb-yellow{background:#f0b429}
-.pb-blue{background:#2d6bc4;border-radius:0 8px 8px 0}
-.pb-red.only{border-radius:8px}
-.pb-yellow.only2{border-radius:0 8px 8px 0}
-
-.cbtn{width:104px;height:104px;border-radius:50%;border:3px solid var(--blue);background:var(--blue);color:#fff;font-size:var(--fs-base);font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;margin:14px auto 0;letter-spacing:.05em;transition:all .2s}
-.cbtn.running{background:var(--red);border-color:var(--red)}
-.cbtn svg{width:30px;height:30px;fill:#fff;stroke:none}.cbtn:active{transform:scale(.95)}
-
-/* Victorious Prayers strip */
+/* PAGE 1 */
 .pray-strip{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:12px 16px;border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;margin-bottom:10px;transition:all .2s}
-.pray-strip:active{transform:scale(.98);background:var(--card2)}
-.pray-strip svg{flex-shrink:0;stroke:var(--gold)}
+.pray-strip:active{transform:scale(.98)}.pray-strip>svg{flex-shrink:0;stroke:var(--gold)}
 .pray-strip span{flex:1;font-size:var(--fs-sm);font-weight:700;color:var(--blue)}
 .pray-strip>svg:last-child{stroke:var(--muted)}
-
-/* Bottom stat cards */
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.guest-warn{background:#fff8e1;border:1px solid #f0b429;border-radius:10px;padding:10px 14px;font-size:var(--fs-xs);color:#7a5500;display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+body.dark .guest-warn{background:rgba(240,180,41,.12);color:var(--gold-l)}
+.guest-warn svg{flex-shrink:0;margin-top:1px;stroke:currentColor}
+.tcard{background:linear-gradient(145deg,var(--tcbg1) 0%,var(--tcbg2) 100%);border-radius:20px;padding:26px 18px 22px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(26,79,160,.18)}
+.tcard::before{content:'\5357\7121\5999\6CD5\84EE\83EF\7D93';position:absolute;top:10px;left:0;right:0;font-family:'Noto Serif JP',serif;font-size:10px;color:rgba(26,79,160,.15);letter-spacing:.35em;text-align:center}
+.tdate{font-size:var(--fs-sm);font-weight:600;color:var(--tctext);opacity:.7;margin-bottom:2px}
+.td{font-size:var(--fs-xl);font-weight:300;color:var(--tctext);letter-spacing:.04em;font-variant-numeric:tabular-nums;line-height:1;margin:4px 0}
+.tl{font-size:10px;color:var(--tcmuted);letter-spacing:.18em;margin-bottom:14px}
+.pb-outer{background:var(--pbtrack);border-radius:8px;height:10px;margin-bottom:8px;overflow:hidden;display:flex}
+.pb-seg{height:100%;transition:width .8s ease;width:0}
+.pb-red{background:#c9271a;border-radius:8px 0 0 8px}.pb-yellow{background:#f0b429}.pb-blue{background:#2d6bc4;border-radius:0 8px 8px 0}
+.pb-red.only{border-radius:8px}.pb-yellow.only2{border-radius:0 8px 8px 0}
+.cbtn{width:104px;height:104px;border-radius:50%;border:3px solid var(--blue);background:var(--blue);color:#fff;font-size:var(--fs-base);font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;margin:8px auto 0;transition:all .2s}
+.cbtn.running{background:var(--red);border-color:var(--red)}
+.cbtn svg{width:30px;height:30px;fill:#fff;stroke:none}.cbtn:active{transform:scale(.95)}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .stat-card{background:var(--card);border-radius:var(--r);padding:14px 12px;border:1px solid var(--border);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
 .stat-lbl{font-size:var(--fs-xs);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
 .stat-val{font-size:var(--fs-lg);font-weight:700;color:var(--blue);line-height:1.1}
 .stat-sub{font-size:var(--fs-xs);color:var(--muted);line-height:1.3}
-
-/* ── PAGE 2: HISTORY ─────────────────────────────── */
+/* PAGE 2 */
 .ctrow{display:flex;gap:6px;margin-bottom:12px;align-items:center}
-.ctb{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ctb{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .ctb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .chart-outer{display:flex;align-items:stretch;margin-bottom:14px;gap:0}
 .chart-yaxis-wrap{flex-shrink:0;min-width:42px;height:190px;position:relative}
@@ -121,29 +93,23 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:r
 .cw canvas{display:block;height:190px !important}
 .abtn{width:100%;padding:14px;border:2px dashed var(--blue-l);background:rgba(26,79,160,.04);border-radius:12px;font-size:var(--fs-sm);font-weight:700;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:14px;transition:all .2s;font-family:'DM Sans',sans-serif}
 .abtn:active{background:rgba(26,79,160,.1)}
-.hist-toggle{display:flex;gap:8px;margin-bottom:12px;align-items:center;font-size:var(--fs-xs);color:var(--muted);font-weight:600}
-.si{background:var(--card);border-radius:10px;padding:10px 14px 10px 28px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.sid{font-size:var(--fs-sm);font-weight:600}.sit{font-size:var(--fs-xs);color:var(--muted)}.sidr{font-size:var(--fs-sm);font-weight:800;color:var(--blue)}
-.del-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--red);opacity:.65;display:flex;align-items:center;transition:opacity .2s,background .2s;flex-shrink:0}
-.del-btn:hover,.del-btn:active{opacity:1;background:rgba(201,39,26,.1)}
-.subr{background:rgba(26,79,160,.07);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.subrl{font-size:var(--fs-sm);font-weight:700;color:var(--blue)}.subv{font-size:var(--fs-sm);font-weight:800;color:var(--blue)}
-/* Drill-down accordion */
 .log-month{margin-bottom:8px}.log-week{margin-bottom:2px}
 .log-row{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;cursor:pointer;transition:background .15s;user-select:none}
 .log-m-row{background:rgba(26,79,160,.1);margin-bottom:3px;font-weight:700}
 .log-m-row.open{background:rgba(26,79,160,.16);border-radius:12px 12px 4px 4px}
 .log-w-row{background:rgba(26,79,160,.05);margin:2px 0 2px 14px;font-weight:600;border-radius:10px}
-.log-w-row.open{background:rgba(26,79,160,.1)}
-.log-row:active{filter:brightness(.95)}
+.log-w-row.open{background:rgba(26,79,160,.1)}.log-row:active{filter:brightness(.95)}
 .log-arrow{font-size:11px;color:var(--blue);width:12px;flex-shrink:0}
 .log-lbl{flex:1;font-size:var(--fs-sm);color:var(--text)}
 .log-val{font-size:var(--fs-xs);font-weight:700;color:var(--blue);text-align:right;white-space:nowrap}
 .log-day-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 3px 28px}
 .log-day-hd .log-lbl{font-size:var(--fs-xs);color:var(--muted);font-weight:700}
 .log-day-hd .log-val{font-size:var(--fs-xs);font-weight:700;color:var(--blue)}
-
-/* ── PAGE 3: BADGES ──────────────────────────────── */
+.si{background:var(--card);border-radius:10px;padding:10px 14px 10px 28px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sid{font-size:var(--fs-sm);font-weight:600}.sit{font-size:var(--fs-xs);color:var(--muted)}.sidr{font-size:var(--fs-sm);font-weight:800;color:var(--blue)}
+.del-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--red);opacity:.65;display:flex;align-items:center;transition:opacity .2s;flex-shrink:0}
+.del-btn:active{opacity:1;background:rgba(201,39,26,.1)}
+/* PAGES 3-5 */
 .bggrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .bc{background:var(--card);border-radius:14px;padding:14px 10px;border:1px solid var(--border);text-align:center;transition:all .3s}
 .bc.earned{border-color:var(--gold);background:rgba(240,180,41,.06)}.bc.locked{opacity:.4}
@@ -156,23 +122,13 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:r
 .msrow{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .ms{background:rgba(255,255,255,.12);border-radius:20px;padding:4px 11px;font-size:var(--fs-xs);color:rgba(255,255,255,.75)}
 .ms.done{background:rgba(240,180,41,.28);color:#f7d070}
-
-/* ── PAGE 4: DAIMOKU CHART ───────────────────────── */
-.dchd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.csn{font-size:var(--fs-lg);font-weight:800;color:var(--blue)}.csl{font-size:var(--fs-xs);color:var(--muted)}
-/* Larger boxes: 20-col grid instead of 25, 50 rows = 1000 boxes, bigger cells */
 .dmgrid{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;padding:12px;background:var(--dm-grid);border-radius:14px;border:1px solid var(--border);margin-bottom:12px}
 .dm{aspect-ratio:1;border-radius:2px;background:var(--dm-empty);transition:background .4s}
 .dm.f{background:var(--blue)}.dm.new{animation:bfill .5s ease forwards}
 @keyframes bfill{0%{transform:scale(1.6);background:var(--gold)}100%{transform:scale(1);background:var(--blue)}}
-.leg{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap}
-.li{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted)}
-.ld{width:12px;height:12px;border-radius:2px;flex-shrink:0}
-.rcbtn{width:100%;padding:13px;border:1.5px solid var(--red);background:rgba(201,39,26,.04);border-radius:12px;color:var(--red);font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:6px}
-.rcbtn:active{background:rgba(201,39,26,.1)}
 .fly{position:fixed;width:14px;height:14px;background:var(--gold);border-radius:3px;z-index:200;pointer-events:none;transition:all .85s cubic-bezier(.25,.46,.45,.94);opacity:1}
-
-/* ── PAGE 5: GUIDANCE ────────────────────────────── */
+.rcbtn{width:100%;padding:13px;border:1.5px solid var(--red);background:rgba(201,39,26,.04);border-radius:12px;color:var(--red);font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px}
+.rcbtn:active{background:rgba(201,39,26,.1)}
 .ghd{background:linear-gradient(145deg,var(--blue-d),var(--blue));border-radius:18px;padding:22px 18px;margin-bottom:14px;text-align:center}
 .ghd .gl{font-size:var(--fs-xs);color:rgba(255,255,255,.55);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
 .ghd .gd{font-size:var(--fs-base);font-weight:600;color:#fff}.ghd .lotus{font-size:26px;margin-top:10px}
@@ -184,30 +140,49 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:r
 .qsrc{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;font-style:italic;line-height:1.5}
 .tpill{display:inline-block;background:rgba(240,180,41,.14);color:#7a5500;border-radius:20px;padding:4px 14px;font-size:var(--fs-sm);font-weight:700;margin-bottom:14px}
 body.dark .tpill{color:var(--gold-l);background:rgba(240,180,41,.2)}
-
-/* ── PAGE 6: SETTINGS ────────────────────────────── */
+/* PAGE 6 SETTINGS */
 .sg{margin-bottom:18px}.sgt{font-size:var(--fs-xs);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;padding:0 2px}
 .sr{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;transition:background .15s}
-.sr:active{background:var(--bg)}
-.srl{display:flex;flex-direction:column;gap:2px}
+.sr:active{background:var(--bg)}.srl{display:flex;flex-direction:column;gap:2px}
 .srl span{font-size:var(--fs-base);font-weight:600;color:var(--text)}.srl small{font-size:var(--fs-xs);color:var(--muted)}
 .srr{display:flex;gap:7px;flex-wrap:wrap}
 .lb{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:var(--fs-sm);font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted);font-family:'DM Sans',sans-serif}
 .lb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .tirow{display:flex;align-items:center;gap:10px;width:100%}
-.tirow input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:var(--fs-base);font-weight:700;color:var(--blue);background:var(--bg);outline:none;font-family:'DM Sans',sans-serif}
-.tirow input:focus{border-color:var(--blue)}
+.tirow input,.auth-field input{padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:var(--fs-base);font-weight:700;color:var(--blue);background:var(--bg);outline:none;font-family:'DM Sans',sans-serif}
+.tirow input{flex:1}.tirow input:focus,.auth-field input:focus{border-color:var(--blue)}
 .svbtn{padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
-
-/* Per-day target rows */
 .day-targets{display:none;flex-direction:column;gap:8px;margin-top:10px;width:100%}
 .day-targets.show{display:flex}
 .dt-row{display:flex;align-items:center;gap:10px}
 .dt-row label{width:36px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);flex-shrink:0}
 .dt-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:var(--fs-sm);font-weight:700;color:var(--blue);background:var(--bg);outline:none;font-family:'DM Sans',sans-serif}
-.dt-row input:focus{border-color:var(--blue)}
-
-/* ── MODALS ───────────────────────────────────────── */
+/* AUTH */
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px}
+.auth-box{background:var(--card);border-radius:22px;padding:28px 22px;width:100%;max-width:380px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.auth-box h2{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
+.auth-sub{font-size:var(--fs-sm);color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
+.auth-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;margin-bottom:18px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:var(--fs-sm);font-weight:700;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .2s}
+.auth-tab.active{background:var(--blue);color:#fff}
+.auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.auth-field label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.auth-field input{width:100%}
+.auth-btn{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:var(--fs-base);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;transition:all .2s}
+.auth-btn:active{opacity:.85}.auth-btn.secondary{background:var(--bg);color:var(--blue);border:1.5px solid var(--blue)}
+.auth-btn.google-btn{background:#fff;color:#3c4043;border:1.5px solid #dadce0;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600}
+.auth-btn.facebook-btn{background:#1877F2;color:#fff;border:none;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600}
+body.dark .auth-btn.google-btn{background:#3c4043;color:#e8eaed;border-color:#5f6368}
+.auth-divider{text-align:center;font-size:var(--fs-xs);color:var(--muted);margin:8px 0}
+.auth-err{font-size:var(--fs-xs);color:var(--red);margin-bottom:10px;min-height:18px;text-align:center}
+.user-badge{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(26,79,160,.07);border-radius:10px;margin-bottom:10px}
+.user-badge .ub-email{flex:1;font-size:var(--fs-xs);color:var(--blue);font-weight:600;word-break:break-all}
+.signout-btn{padding:6px 12px;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sync-dot.guest{background:var(--gold)}
+.sb-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:11px;background:var(--bg);color:var(--text);font-family:monospace;outline:none;margin-bottom:8px}
+.sb-input:focus{border-color:var(--blue)}
+/* MODALS */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.58);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
 .mo.show{opacity:1;pointer-events:all}
 .md{background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:390px;transform:translateY(20px);transition:transform .25s;max-height:90vh;overflow-y:auto}
@@ -219,57 +194,44 @@ body.dark .tpill{color:var(--gold-l);background:rgba(240,180,41,.2)}
 .pcont{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .pcont p{font-size:var(--fs-base);line-height:1.9;color:var(--text);font-family:'Noto Serif JP',serif;text-align:center;white-space:pre-wrap}
 .pcont img{max-width:100%;max-height:380px;border-radius:10px;object-fit:contain}
-.pcont.zh p{font-family:'Noto Sans SC',sans-serif;font-size:calc(var(--fs-base) - 1px)}
+.pcont.zh p{font-family:'Noto Sans SC',sans-serif}
 textarea{width:100%;min-height:130px;border:1.5px solid var(--border);border-radius:10px;padding:11px;font-size:var(--fs-sm);line-height:1.7;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;background:var(--bg);color:var(--text)}
 textarea:focus{border-color:var(--blue)}
 .upz{border:2px dashed var(--blue-l);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:var(--blue);font-size:var(--fs-sm);font-weight:600}
 .milbl{font-size:var(--fs-sm);color:var(--muted);display:block;margin-bottom:6px}
 input[type=date],input[type=number]{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:var(--fs-base);font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none}
 input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
-
-/* ── SESSION COMPLETE MODAL ───────────────────────── */
-.sc-big{font-size:38px;font-weight:800;color:var(--blue);margin:12px 0;font-variant-numeric:tabular-nums}
-
-/* ── TOAST ───────────────────────────────────────── */
 .toast{position:fixed;bottom:calc(var(--nav) + 14px);left:50%;transform:translateX(-50%) translateY(30px);background:var(--blue-d);color:#fff;border-radius:30px;padding:11px 22px;font-size:var(--fs-sm);font-weight:600;z-index:50;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.sc-big{font-size:36px;font-weight:800;color:var(--blue);margin:12px 0;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hd">
-  <h1 class="hd-t">🏆 Victory App</h1>
+  <h1 class="hd-t">Victory App</h1>
   <div class="hd-right">
-    <button class="gear-btn" onclick="showPage('settings')" aria-label="Settings">
+    <button class="gear-btn" onclick="showPage('settings')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
-    <button class="schip" onclick="showPage('badges')" aria-label="Streak & Badges">
-      <span class="sn" id="hStreak">0</span>
-      <span class="sf" id="hFire">🔥</span>
+    <button class="schip" onclick="showPage('badges')">
+      <span class="sn" id="hStreak">0</span><span class="sf" id="hFire">&#x1F525;</span>
     </button>
   </div>
 </header>
 
-<!-- PAGES -->
 <div class="pages">
-
-<!-- PAGE 1: CHANT -->
+<!-- PAGE 1 -->
 <div class="page active" id="page-chant"><div class="pc">
-
-  <!-- Victorious Prayers strip (above stopwatch) -->
   <div class="pray-strip" onclick="showPrayersView()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="22" height="22">
-      <!-- Praying hands -->
-      <path d="M12 2C10.5 4 9 6.5 9 9v4l-3 3v3h6v-3l-1-1"/>
-      <path d="M12 2C13.5 4 15 6.5 15 9v4l3 3v3h-6v-3l1-1"/>
-      <line x1="12" y1="15" x2="12" y2="22"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="22" height="22"><path d="M9 12V7.5a3 3 0 0 1 6 0V12"/><path d="M5 12h14l-1 8H6z"/><path d="M9 12c0 1.7.9 3 3 3s3-1.3 3-3"/></svg>
     <span id="pBtn">Victorious Prayers</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9,18 15,12 9,6"/></svg>
   </div>
-
-  <!-- Stopwatch card -->
+  <div class="guest-warn" id="guestWarn" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="guestWarnTxt">Guest mode: data stored on this device only. Sign in via Settings to sync across devices.</span>
+  </div>
   <div class="tcard">
     <div class="tdate" id="timerDate"></div>
     <div class="td" id="timerDisp">00:00:00</div>
@@ -279,29 +241,18 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
       <div class="pb-seg pb-yellow" id="pbYellow"></div>
       <div class="pb-seg pb-blue" id="pbBlue"></div>
     </div>
-    <div style="height:8px"></div>
     <button class="cbtn" id="chantBtn" onclick="onChantPress()">
       <svg id="cbIco" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
       <span id="cbLbl">START</span>
     </button>
   </div>
-
-  <!-- Bottom 2-col stat row -->
   <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-lbl" id="tcLbl">TODAY'S TARGET</div>
-      <div class="stat-val" id="tcVal">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-lbl" id="tdLbl">TODAY'S DAIMOKU</div>
-      <div class="stat-val" id="tdVal">—</div>
-      <div class="stat-sub" id="tdSub">min chanted today</div>
-    </div>
+    <div class="stat-card"><div class="stat-lbl" id="tcLbl">TODAY'S TARGET</div><div class="stat-val" id="tcVal">&#x2014;</div></div>
+    <div class="stat-card"><div class="stat-lbl" id="tdLbl">TODAY'S DAIMOKU</div><div class="stat-val" id="tdVal">&#x2014;</div><div class="stat-sub" id="tdSub">min chanted today</div></div>
   </div>
-
 </div></div>
 
-<!-- PAGE 2: HISTORY -->
+<!-- PAGE 2 -->
 <div class="page" id="page-history"><div class="pc">
   <div class="tabs">
     <button class="tb active" onclick="switchTab('day',this)" id="tDay">Day</button>
@@ -309,13 +260,13 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
     <button class="tb" onclick="switchTab('month',this)" id="tMonth">Month</button>
   </div>
   <div class="card">
-    <div class="ct" id="chartTitle">Last 14 Days</div>
+    <div class="ct" id="chartTitle">Daily</div>
     <div class="ctrow">
       <button class="ctb active" onclick="setCT('line',this)" id="ctLine">Line</button>
       <button class="ctb" onclick="setCT('bar',this)" id="ctBar">Bar</button>
       <div style="flex:1"></div>
-      <button class="ctb active" onclick="setHistMetric('time',this)" id="hmTime">Time</button>
-      <button class="ctb" onclick="setHistMetric('daimoku',this)" id="hmDai">Daimoku</button>
+      <button class="ctb active" onclick="setHM('time',this)" id="hmTime">Time</button>
+      <button class="ctb" onclick="setHM('daimoku',this)" id="hmDai">Daimoku</button>
     </div>
     <div class="chart-outer">
       <div class="chart-yaxis-wrap"><canvas id="histChartY"></canvas></div>
@@ -329,10 +280,10 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
   <div id="listWrap"></div>
 </div></div>
 
-<!-- PAGE 3: BADGES (streak page) -->
+<!-- PAGE 3 BADGES -->
 <div class="page" id="page-badges"><div class="pc">
   <div class="sccard">
-    <div class="bf" id="bigFire">🔥</div>
+    <div class="bf" id="bigFire">&#x1F525;</div>
     <div class="sc" id="bigStreak">0</div>
     <div class="st" id="bigStreakTxt">Start chanting to begin your streak!</div>
     <div class="msrow" id="msPills"></div>
@@ -341,20 +292,15 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
   <div class="bggrid" id="badgeGrid"></div>
 </div></div>
 
-<!-- PAGE 4: DAIMOKU CHART -->
+<!-- PAGE 4 CHART -->
 <div class="page" id="page-chart"><div class="pc">
-  <div class="dchd">
-    <div><div class="ct" id="dcTitle">DAIMOKU CHART</div>
-      <div style="font-size:var(--fs-xs);color:var(--muted)" id="dcSub">1 box = 20 min = 1,000 daimoku</div>
-    </div>
-    <div style="text-align:right">
-      <div class="csn" id="boxNum">0</div>
-      <div class="csl" id="boxLbl">total boxes</div>
-    </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+    <div><div class="ct" id="dcTitle">DAIMOKU CHART</div><div style="font-size:var(--fs-xs);color:var(--muted)" id="dcSub">1 box = 20 min = 1,000 daimoku</div></div>
+    <div style="text-align:right"><div style="font-size:var(--fs-lg);font-weight:800;color:var(--blue)" id="boxNum">0</div><div style="font-size:var(--fs-xs);color:var(--muted)" id="boxLbl">total boxes</div></div>
   </div>
-  <div class="leg">
-    <div class="li"><div class="ld" style="background:var(--blue)"></div><span id="legF">Chanted</span></div>
-    <div class="li"><div class="ld" style="background:var(--dm-empty)"></div><span id="legE">Remaining</span></div>
+  <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted)"><div style="width:12px;height:12px;border-radius:2px;background:var(--blue)"></div><span id="legF">Chanted</span></div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted)"><div style="width:12px;height:12px;border-radius:2px;background:var(--dm-empty)"></div><span id="legE">Remaining</span></div>
   </div>
   <div style="font-size:var(--fs-sm);color:var(--blue);font-weight:700;margin-bottom:8px" id="daiTotal"></div>
   <div class="dmgrid" id="dmGrid"></div>
@@ -362,67 +308,50 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
   <button class="rcbtn" onclick="confirmChartReset()" id="rcBtn">Reset Daimoku Chart</button>
 </div></div>
 
-<!-- PAGE 5: GUIDANCE -->
+<!-- PAGE 5 GUIDANCE -->
 <div class="page" id="page-guidance"><div class="pc">
   <div class="ghd">
     <div class="gl" id="gdyLbl">Today's Guidance</div>
     <div class="gd" id="gdyDate"></div>
-    <div class="lotus">🪷</div>
+    <div class="lotus">&#x1FAB7;</div>
   </div>
   <div class="tpill" id="gdyTheme"></div>
   <div class="qcard">
     <div class="qt" id="gdyQuote"></div>
-    <div class="qa">— Daisaku Ikeda</div>
+    <div class="qa">&#x2014; Daisaku Ikeda</div>
     <div class="qsrc" id="gdySrc"></div>
   </div>
   <div style="text-align:center;font-size:var(--fs-xs);color:var(--muted)" id="gdyRotLbl">Guidance rotates daily</div>
 </div></div>
 
-<!-- PAGE 6: SETTINGS -->
+<!-- PAGE 6 SETTINGS -->
 <div class="page" id="page-settings"><div class="pc">
-  <!-- Language -->
+  <div class="sg">
+    <div class="sgt" id="sgAccount">Account</div>
+    <div id="accountPanel"></div>
+  </div>
   <div class="sg">
     <div class="sgt" id="sgLang">Language</div>
     <div class="sr" style="cursor:default">
       <div class="srl"><span id="srLang">Display Language</span></div>
-      <div class="srr">
-        <button class="lb active" id="btnEn" onclick="setLang('en')">EN</button>
-        <button class="lb" id="btnZh" onclick="setLang('zh')">中文</button>
-      </div>
+      <div class="srr"><button class="lb active" id="btnEn" onclick="setLang('en')">EN</button><button class="lb" id="btnZh" onclick="setLang('zh')">&#x4E2D;&#x6587;</button></div>
     </div>
   </div>
-  <!-- Appearance -->
   <div class="sg">
     <div class="sgt" id="sgAppear">Appearance</div>
     <div class="sr" style="cursor:default;flex-direction:column;align-items:flex-start;gap:12px">
       <div class="srl"><span id="srTheme">Background Theme</span></div>
-      <div class="srr">
-        <button class="lb active" id="btnLight" onclick="setTheme('light')">Light</button>
-        <button class="lb" id="btnDark" onclick="setTheme('dark')">Dark</button>
-      </div>
+      <div class="srr"><button class="lb active" id="btnLight" onclick="setTheme('light')">Light</button><button class="lb" id="btnDark" onclick="setTheme('dark')">Dark</button></div>
       <div class="srl"><span id="srFont">Font Size</span></div>
-      <div class="srr">
-        <button class="lb active" id="btnMed" onclick="setFontSize('medium')">Small</button>
-        <button class="lb" id="btnLg" onclick="setFontSize('large')">Medium</button>
-        <button class="lb" id="btnXLg" onclick="setFontSize('xlarge')">Large</button>
-      </div>
+      <div class="srr"><button class="lb active" id="btnMed" onclick="setFontSize('medium')">Small</button><button class="lb" id="btnLg" onclick="setFontSize('large')">Medium</button><button class="lb" id="btnXLg" onclick="setFontSize('xlarge')">Large</button></div>
     </div>
   </div>
-  <!-- Daily Target -->
   <div class="sg">
     <div class="sgt" id="sgTarget">Daily Target</div>
-    <div class="sr" style="cursor:default;flex-direction:column;align-items:flex-start;gap:12px">
-      <div class="srl"><span id="srTarget">Chanting target (minutes)</span><small id="srTargetSub">Shown as progress bar on Chant screen</small></div>
-      <div class="srr">
-        <button class="lb active" id="btnSameDay" onclick="setTargetMode('same')">Same every day</button>
-        <button class="lb" id="btnDiffDay" onclick="setTargetMode('diff')">Different per day</button>
-      </div>
-      <!-- Same every day -->
-      <div class="tirow" id="sameTargetRow">
-        <input type="number" id="targetIn" min="1" max="1440" placeholder="e.g. 30">
-        <button class="svbtn" onclick="saveTarget()" id="svBtn">Save</button>
-      </div>
-      <!-- Per-day targets -->
+    <div class="sr" style="cursor:default;flex-direction:column;align-items:flex-start;gap:11px">
+      <div class="srl"><span id="srTarget">Chanting target (minutes)</span><small id="srTargetSub">Progress bar on Chant screen</small></div>
+      <div class="srr"><button class="lb active" id="btnSameDay" onclick="setTargetMode('same')">Same every day</button><button class="lb" id="btnDiffDay" onclick="setTargetMode('diff')">Different per day</button></div>
+      <div class="tirow" id="sameTargetRow"><input type="number" id="targetIn" min="1" max="1440" placeholder="e.g. 30"><button class="svbtn" onclick="saveTarget()" id="svBtn">Save</button></div>
       <div class="day-targets" id="dayTargets">
         <div class="dt-row"><label id="lMon">Mon</label><input type="number" id="dtMon" min="1" max="1440" placeholder="30"></div>
         <div class="dt-row"><label id="lTue">Tue</label><input type="number" id="dtTue" min="1" max="1440" placeholder="30"></div>
@@ -431,11 +360,10 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
         <div class="dt-row"><label id="lFri">Fri</label><input type="number" id="dtFri" min="1" max="1440" placeholder="30"></div>
         <div class="dt-row"><label id="lSat">Sat</label><input type="number" id="dtSat" min="1" max="1440" placeholder="60"></div>
         <div class="dt-row"><label id="lSun">Sun</label><input type="number" id="dtSun" min="1" max="1440" placeholder="90"></div>
-        <button class="svbtn" onclick="savePerDayTargets()" id="svPerDayBtn" style="margin-top:4px">Save All</button>
+        <button class="svbtn" onclick="savePerDayTargets()" id="svPerDayBtn">Save All</button>
       </div>
     </div>
   </div>
-  <!-- Prayers -->
   <div class="sg">
     <div class="sgt" id="sgPrayers">Prayers</div>
     <div class="sr" onclick="openPrayersEdit()">
@@ -443,7 +371,16 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
     </div>
   </div>
-  <!-- Data -->
+  <div class="sg">
+    <div class="sgt">Supabase Setup</div>
+    <div class="sr" style="cursor:default;flex-direction:column;align-items:flex-start;gap:8px">
+      <div class="srl"><span>Project URL</span><small>From your Supabase dashboard</small></div>
+      <input class="sb-input" type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+      <div class="srl"><span>Anon Key</span></div>
+      <input class="sb-input" type="text" id="sbKey" placeholder="eyJ...">
+      <button class="svbtn" onclick="saveSupabaseConfig()">Save Config</button>
+    </div>
+  </div>
   <div class="sg">
     <div class="sgt" id="sgData">Data</div>
     <div class="sr" onclick="confirmResetAll()">
@@ -451,830 +388,484 @@ input[type=date]:focus,input[type=number]:focus{border-color:var(--blue)}
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
     </div>
   </div>
-  <div style="text-align:center;margin-top:18px;font-size:var(--fs-xs);color:var(--muted)">Victory App · Personal Chanting Tracker<br><span>Guidance quotes sourced from sgi-usa.org &amp; exhibits.sgi-usa.org</span></div>
+  <div style="text-align:center;margin-top:18px;font-size:var(--fs-xs);color:var(--muted)">Victory App &#xB7; Personal Chanting Tracker<br>Guidance quotes sourced from sgi-usa.org</div>
 </div></div>
+</div>
 
-</div><!-- /pages -->
-
-<!-- NAV (4 tabs) -->
 <nav class="nav">
-  <button class="ni active" onclick="showPage('chant')" id="nav-chant">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><polyline points="12,8 12,12 14,14"/></svg>
-    <span id="navChant">Chant</span>
-  </button>
-  <button class="ni" onclick="showPage('history')" id="nav-history">
-    <svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-    <span id="navHistory">History</span>
-  </button>
-  <button class="ni" onclick="showPage('chart')" id="nav-chart">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-    <span id="navChart">Chart</span>
-  </button>
-  <button class="ni" onclick="showPage('guidance')" id="nav-guidance">
-    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-    <span id="navGuidance">Guidance</span>
-  </button>
+  <button class="ni active" onclick="showPage('chant')" id="nav-chant"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><polyline points="12,8 12,12 14,14"/></svg><span id="navChant">Chant</span></button>
+  <button class="ni" onclick="showPage('history')" id="nav-history"><svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg><span id="navHistory">History</span></button>
+  <button class="ni" onclick="showPage('chart')" id="nav-chart"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span id="navChart">Chart</span></button>
+  <button class="ni" onclick="showPage('guidance')" id="nav-guidance"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span id="navGuidance">Guidance</span></button>
 </nav>
 
-<!-- PRAYERS VIEW -->
-<div class="mo" id="pvMo"><div class="md" style="max-height:88vh">
-  <h3 id="pvTitle">My Victorious Prayers</h3>
-  <div class="pcont" id="pvCont"></div>
-  <div class="ma"><button class="mc" onclick="closeMo('pvMo')" id="pvClose">Close</button></div>
-</div></div>
-
-<!-- PRAYERS EDIT -->
-<div class="mo" id="peMo"><div class="md">
-  <h3 id="peTitle">✏️ Edit Victorious Prayers</h3>
-  <textarea id="pTxtIn" placeholder="Enter your prayers here..."></textarea>
-  <div style="margin:11px 0;text-align:center;font-size:var(--fs-xs);color:var(--muted)" id="orLbl">— or upload an image —</div>
-  <div class="upz" onclick="document.getElementById('imgIn').click()" id="upZone">📷 Tap to upload prayer image</div>
-  <input type="file" id="imgIn" accept="image/*" style="display:none" onchange="handleImg(this)">
-  <div class="ma">
-    <button class="mc" onclick="closeMo('peMo')" id="peCancelBtn">Cancel</button>
-    <button class="mp" onclick="savePrayers()" id="peSaveBtn">Save</button>
+<!-- AUTH OVERLAY -->
+<div id="authOverlay" class="auth-overlay" style="display:none">
+  <div class="auth-box">
+    <div style="font-size:36px;text-align:center;margin-bottom:10px">&#x1F3C6;</div>
+    <h2>Victory App</h2>
+    <p class="auth-sub" id="aoSub">Sign in to sync your data across devices, or continue as a guest.</p>
+    <div class="auth-tabs"><button class="auth-tab active" id="atLogin" onclick="switchAuthTab('login')">Sign In</button><button class="auth-tab" id="atReg" onclick="switchAuthTab('register')">Register</button></div>
+    <div class="auth-err" id="authErr"></div>
+    <div class="auth-field"><label id="alEmail">Email</label><input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email"></div>
+    <div class="auth-field"><label id="alPwd">Password</label><input type="password" id="authPwd" placeholder="••••••••" autocomplete="current-password"></div>
+    <div class="auth-field" id="authPwd2Wrap" style="display:none"><label id="alPwd2">Confirm Password</label><input type="password" id="authPwd2" placeholder="••••••••"></div>
+    <button class="auth-btn" id="authSubmitBtn" onclick="authSubmit()">Sign In</button>
+    <div class="auth-divider" id="authDivOr">&#x2014; or sign in with &#x2014;</div>
+    <button class="auth-btn google-btn" onclick="signInWithProvider('google')" id="googleBtn">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="googleBtnTxt">Continue with Google</span>
+    </button>
+    <button class="auth-btn facebook-btn" onclick="signInWithProvider('facebook')" id="facebookBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0" fill="#fff"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+      <span id="facebookBtnTxt">Continue with Facebook</span>
+    </button>
+    <div class="auth-divider">&#x2014; or &#x2014;</div>
+    <button class="auth-btn secondary" onclick="continueAsGuest()" id="guestBtn">Continue as Guest</button>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5" id="aoNote">Guest mode stores data on this device only. Clearing your browser cache will erase it.</p>
   </div>
-</div></div>
+</div>
 
-<!-- ADD SESSION -->
-<div class="mo" id="addMo"><div class="md">
-  <h3 id="addTitle">➕ Add Past Session</h3>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div><label class="milbl" id="addDateLbl">Date</label><input type="date" id="addDate"></div>
-    <div><label class="milbl" id="addMinLbl">Duration (minutes, max 1440)</label><input type="number" id="addMins" min="1" max="1440" placeholder="30"></div>
-  </div>
-  <div class="ma">
-    <button class="mc" onclick="closeMo('addMo')">Cancel</button>
-    <button class="mp" onclick="addPastSession()" id="addSaveBtn">Add</button>
-  </div>
-</div></div>
-
-<!-- RESET ALL -->
-<div class="mo" id="resetMo"><div class="md">
-  <h3 id="rmTitle">⚠️ Reset All Data?</h3>
-  <p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="rmDesc">This will permanently delete ALL chanting sessions, history, streak, Daimoku Chart progress, and your saved Prayers. This cannot be undone.</p>
-  <div class="ma">
-    <button class="mc" onclick="closeMo('resetMo')">Cancel</button>
-    <button class="mdr" onclick="doResetAll()">Reset Everything</button>
-  </div>
-</div></div>
-
-<!-- CHART RESET (keeps prayers) -->
-<div class="mo" id="cResetMo"><div class="md">
-  <h3 id="crmTitle">⚠️ Reset Daimoku Chart?</h3>
-  <p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="crmDesc">This will reset your Chart boxes to zero AND delete all chanting history records and streak. Your saved Prayers will be kept. This cannot be undone.</p>
-  <div class="ma">
-    <button class="mc" onclick="closeMo('cResetMo')">Cancel</button>
-    <button class="mdr" onclick="doResetChart()">Reset Chart &amp; History</button>
-  </div>
-</div></div>
-
-<!-- DELETE SESSION CONFIRM -->
-<div class="mo" id="delMo"><div class="md">
-  <h3 id="delTitle">🗑️ Delete Session?</h3>
-  <p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="delDesc">This will permanently remove this chanting session and adjust your Daimoku Chart accordingly. This cannot be undone.</p>
-  <div class="ma">
-    <button class="mc" onclick="closeMo('delMo')" id="delCancel">Cancel</button>
-    <button class="mdr" onclick="confirmDelete()" id="delConfirm">Delete</button>
-  </div>
-</div></div>
-
-<!-- SESSION COMPLETE -->
-<div class="mo" id="scMo"><div class="md" style="text-align:center">
-  <div style="font-size:46px;margin-bottom:6px">🎉</div>
-  <h3 id="scTitle">Session Complete!</h3>
-  <div class="sc-big" id="scDur"></div>
-  <div style="font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-bottom:4px" id="scMsg"></div>
-  <div style="font-size:var(--fs-sm);color:var(--muted)" id="scDai"></div>
-  <div class="ma"><button class="mp" onclick="closeMo('scMo')" id="scOk">Nam-myoho-renge-kyo!</button></div>
-</div></div>
-
+<!-- MODALS -->
+<div class="mo" id="pvMo"><div class="md" style="max-height:88vh"><h3 id="pvTitle">My Victorious Prayers</h3><div class="pcont" id="pvCont"></div><div class="ma"><button class="mc" onclick="closeMo('pvMo')" id="pvClose">Close</button></div></div></div>
+<div class="mo" id="peMo"><div class="md"><h3 id="peTitle">Edit Victorious Prayers</h3><textarea id="pTxtIn" placeholder="Enter your prayers here..."></textarea><div style="margin:11px 0;text-align:center;font-size:var(--fs-xs);color:var(--muted)" id="orLbl">&#x2014; or upload an image &#x2014;</div><div class="upz" onclick="document.getElementById('imgIn').click()" id="upZone">&#x1F4F7; Tap to upload prayer image</div><input type="file" id="imgIn" accept="image/*" style="display:none" onchange="handleImg(this)"><div class="ma"><button class="mc" onclick="closeMo('peMo')" id="peCancelBtn">Cancel</button><button class="mp" onclick="savePrayers()" id="peSaveBtn">Save</button></div></div></div>
+<div class="mo" id="addMo"><div class="md"><h3 id="addTitle">Add Past Session</h3><div style="display:flex;flex-direction:column;gap:12px"><div><label class="milbl" id="addDateLbl">Date</label><input type="date" id="addDate"></div><div><label class="milbl" id="addMinLbl">Duration (minutes, max 1440)</label><input type="number" id="addMins" min="1" max="1440" placeholder="30"></div></div><div class="ma"><button class="mc" onclick="closeMo('addMo')">Cancel</button><button class="mp" onclick="addPastSession()" id="addSaveBtn">Add</button></div></div></div>
+<div class="mo" id="resetMo"><div class="md"><h3 id="rmTitle">Reset All Data?</h3><p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="rmDesc">This permanently deletes ALL sessions, history, streak, Daimoku Chart, and Prayers. Cannot be undone.</p><div class="ma"><button class="mc" onclick="closeMo('resetMo')">Cancel</button><button class="mdr" onclick="doResetAll()">Reset Everything</button></div></div></div>
+<div class="mo" id="cResetMo"><div class="md"><h3 id="crmTitle">Reset Daimoku Chart?</h3><p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="crmDesc">Resets chart boxes and deletes all history and streak. Prayers are kept. Cannot be undone.</p><div class="ma"><button class="mc" onclick="closeMo('cResetMo')">Cancel</button><button class="mdr" onclick="doResetChart()">Reset Chart &amp; History</button></div></div></div>
+<div class="mo" id="delMo"><div class="md"><h3 id="delTitle">Delete Session?</h3><p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.65" id="delDesc">This permanently removes this session and adjusts your Daimoku Chart. Cannot be undone.</p><div class="ma"><button class="mc" onclick="closeMo('delMo')" id="delCancel">Cancel</button><button class="mdr" onclick="confirmDelete()" id="delConfirm">Delete</button></div></div></div>
+<div class="mo" id="scMo"><div class="md" style="text-align:center"><div style="font-size:46px;margin-bottom:6px">&#x1F389;</div><h3 id="scTitle">Session Complete!</h3><div class="sc-big" id="scDur"></div><div style="font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-bottom:4px" id="scMsg"></div><div style="font-size:var(--fs-sm);color:var(--muted)" id="scDai"></div><div class="ma"><button class="mp" onclick="closeMo('scMo')" id="scOk">Nam-myoho-renge-kyo!</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  STATE
-// ════════════════════════════════════════
-const DS={
+// ═══════════════════════════════════════════════════
+var DS={
   lang:'en',theme:'light',fontSize:'medium',
-  sessions:[],
-  targetMode:'same',          // 'same' | 'diff'
-  dailyTargetMin:0,           // used when mode='same'
+  sessions:[],targetMode:'same',dailyTargetMin:0,
   perDayTargets:{Mon:0,Tue:0,Wed:0,Thu:0,Fri:0,Sat:0,Sun:0},
-  streak:0,lastChantDate:null,
-  pText:'',pImg:null,
+  streak:0,lastChantDate:null,pText:'',pImg:null,
   boxesFilled:0,partialMinutes:0
 };
-let S={...DS};
-function load(){try{const r=localStorage.getItem('victory_v1');if(r)S={...DS,...JSON.parse(r)};}catch(e){}}
-function save(){try{localStorage.setItem('victory_v1',JSON.stringify(S));}catch(e){}}
-load();
-// Ensure every session has a stable unique id (migration for sessions created before id was added)
-(S.sessions||[]).forEach((s,i)=>{
-  if(!s.id) s.id='s'+(s.ts||Date.now()+i);
-});
-save();
+var S=Object.assign({},DS);
 
-// ════════════════════════════════════════
-//  TIME HELPERS  (day = 03:00–03:00)
-// ════════════════════════════════════════
-function getDayKey(ts){
-  const d=new Date(ts||Date.now());
-  if(d.getHours()<3)d.setDate(d.getDate()-1);
-  return d.toISOString().split('T')[0];
+// ═══════════════════════════════════════════════════
+//  SUPABASE
+// ═══════════════════════════════════════════════════
+var _sb=null,_user=null,_isGuest=true;
+var SBU='victory_sb_url',SBK='victory_sb_key';
+
+function initSupabase(){
+  var u=localStorage.getItem(SBU),k=localStorage.getItem(SBK);
+  if(u&&k&&window.supabase){try{_sb=window.supabase.createClient(u,k);}catch(e){_sb=null;}}
 }
+
+function sbLoad(uid,cb){
+  if(!_sb)return cb(null);
+  _sb.from('victory_data').select('data').eq('user_id',uid).single()
+    .then(function(r){cb(r.error||!r.data?null:r.data.data);})
+    .catch(function(){cb(null);});
+}
+
+function sbSave(uid,payload){
+  if(!_sb)return;
+  _sb.from('victory_data').upsert({user_id:uid,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'})
+    .catch(function(){});
+}
+
+function load(){try{var r=localStorage.getItem('victory_v1');if(r)S=Object.assign({},DS,JSON.parse(r));}catch(e){}}
+function save(){
+  try{localStorage.setItem('victory_v1',JSON.stringify(S));}catch(e){}
+  if(!_isGuest&&_user&&_sb)sbSave(_user.id,S);
+}
+load();
+
+// ═══════════════════════════════════════════════════
+//  TIME HELPERS
+// ═══════════════════════════════════════════════════
+function getDayKey(ts){var d=new Date(ts||Date.now());if(d.getHours()<3)d.setDate(d.getDate()-1);return d.toISOString().split('T')[0];}
 function todayKey(){return getDayKey(Date.now());}
 function pad(n){return String(n).padStart(2,'0');}
-function fmt(s){return `${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`;}
-function fmtMin(s){return `${pad(Math.floor(s/60))}:${pad(s%60)}`;}
-
-// Day-of-week name from date string
-const DOW_KEYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function dowFromDate(dateStr){
-  return DOW_KEYS[new Date(dateStr+'T03:00:00').getDay()];
-}
-
+function fmt(s){return pad(Math.floor(s/3600))+':'+pad(Math.floor((s%3600)/60))+':'+pad(s%60);}
+var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function dowFromDate(ds){return DOW[new Date(ds+'T03:00:00').getDay()];}
 function getTodayTarget(){
-  if(S.targetMode==='same') return S.dailyTargetMin||0;
-  const dow=dowFromDate(todayKey());
-  return (S.perDayTargets&&S.perDayTargets[dow])||0;
+  if(S.targetMode==='same')return S.dailyTargetMin||0;
+  var d=dowFromDate(todayKey());
+  return (S.perDayTargets&&S.perDayTargets[d])||0;
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  FORMAT HELPERS
+// ═══════════════════════════════════════════════════
+function fmtDuration(s){
+  if(s<=0)return '0s';
+  var d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),sec=s%60,p=[];
+  if(d)p.push(d+'d');if(h)p.push(h+'h');if(m)p.push(m+'m');if(sec||!p.length)p.push(sec+'s');
+  return p.join(' ');
+}
+function fmtDaimoku(secs){
+  var dai=Math.round(secs/60*50),boxes=Math.floor(secs/60/20);
+  if(boxes>0)return S.lang==='zh'?('约'+dai.toLocaleString()+'句（'+boxes+'格）'):('~'+dai.toLocaleString()+' daimoku ('+boxes+' box'+(boxes>1?'es':'')+')')
+  return S.lang==='zh'?('约'+dai.toLocaleString()+'句'):('~'+dai.toLocaleString()+' daimoku');
+}
+function fmtYTick(v){
+  if(v>=1000000)return (v/1000000).toFixed(v%1000000===0?0:1)+'M';
+  if(v>=1000)return (v/1000).toFixed(v%1000===0?0:1)+'K';
+  return String(Math.round(v));
+}
+function calcYAxisW(yMax){return Math.max(52,Math.ceil(fmtYTick(yMax).length*7.5)+34);}
+function bestDayTotal(state){
+  var byDay={};(state.sessions||[]).forEach(function(s){byDay[s.date]=(byDay[s.date]||0)+s.durationSec;});
+  var vals=Object.values(byDay);return vals.length?Math.max.apply(null,vals):0;
+}
+function recalcBoxes(){
+  var tot=(S.sessions||[]).reduce(function(a,s){return a+s.durationSec;},0)/60;
+  S.boxesFilled=Math.floor(tot/20);S.partialMinutes=tot%20;
+}
+
+// ═══════════════════════════════════════════════════
 //  TIMER
-// ════════════════════════════════════════
-let tInt=null,tStart=null,elMs=0,isC=false;
-
-function onChantPress(){isC?finishSession():startC();}
-
+// ═══════════════════════════════════════════════════
+var tInt=null,tStart=null,elMs=0,isC=false;
+function onChantPress(){if(isC)finishSession();else startC();}
 function startC(){
-  isC=true;tStart=Date.now()-elMs;
-  tInt=setInterval(tick,500);
+  isC=true;tStart=Date.now()-elMs;tInt=setInterval(tick,500);
   document.getElementById('chantBtn').classList.add('running');
   document.getElementById('cbIco').innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
   document.getElementById('cbLbl').textContent=t('END','结束');
 }
-
+function tick(){elMs=Date.now()-tStart;var s=Math.floor(elMs/1000);document.getElementById('timerDisp').textContent=fmt(s);updProg(s);}
 function updateDateDisplay(){
-  const lc=S.lang==='zh'?'zh-CN':'en-SG';
-  document.getElementById('timerDate').textContent=
-    new Date().toLocaleDateString(lc,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-}
-
-function tick(){
-  elMs=Date.now()-tStart;
-  const s=Math.floor(elMs/1000);
-  document.getElementById('timerDisp').textContent=fmt(s);
-  updProg(s);
+  var lc=S.lang==='zh'?'zh-CN':'en-SG';
+  var el=document.getElementById('timerDate');
+  if(el)el.textContent=new Date().toLocaleDateString(lc,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
 }
 
 function finishSession(){
-  if(!isC)return;
-  isC=false;clearInterval(tInt);
-  const secs=Math.floor(elMs/1000);elMs=0;
+  if(!isC)return;isC=false;clearInterval(tInt);
+  var secs=Math.floor(elMs/1000);elMs=0;
   document.getElementById('timerDisp').textContent='00:00:00';
   document.getElementById('chantBtn').classList.remove('running');
   document.getElementById('cbIco').innerHTML='<polygon points="5,3 19,12 5,21"/>';
   document.getElementById('cbLbl').textContent=t('START','开始');
   updProg(0);
   if(secs<5){showToast(t('Too short — not saved.','时间太短，未保存。'));return;}
-  const dk=todayKey();
-  const sid='s'+Date.now();
+  var dk=todayKey(),sid='s'+Date.now(),oldF=S.boxesFilled||0;
   S.sessions.push({id:sid,date:dk,durationSec:secs,ts:Date.now()});
-  const oldF=S.boxesFilled||0;
-  recalcBoxes();   // recompute from all sessions
-  const nB=Math.max(0,S.boxesFilled-oldF);
+  recalcBoxes();
+  var nB=Math.max(0,S.boxesFilled-oldF);
   updStreak(dk);save();
   if(nB>0)animFly(oldF,S.boxesFilled);
-  // Session complete modal
-  const daimokuChanted=Math.round(secs/60*50); // 50 daimoku/min approx
+  var dai=Math.round(secs/60*50);
   document.getElementById('scDur').textContent=fmt(secs);
-  document.getElementById('scMsg').textContent=nB>0
-    ?t(`+${nB} box${nB>1?'es':''} added to your Daimoku Chart!`,`图表新增 ${nB} 格！`)
-    :t('Keep going — 20 min fills one box.','继续加油！20分钟填满一格。');
-  document.getElementById('scDai').textContent=t(`≈ ${daimokuChanted.toLocaleString()} daimoku this session`,`本次约 ${daimokuChanted.toLocaleString()} 句题目`);
-  openMo('scMo');
-  renderHistory();renderBadges();renderDmGrid();
+  document.getElementById('scMsg').textContent=nB>0?(S.lang==='zh'?('图表新增 '+nB+' 格！'):('+'+nB+' box'+(nB>1?'es':'')+' added!')):t('Keep going — 20 min fills one box.','继续加油！20分钟填满一格。');
+  document.getElementById('scDai').textContent=S.lang==='zh'?('本次约 '+dai.toLocaleString()+' 句题目'):('≈ '+dai.toLocaleString()+' daimoku this session');
+  openMo('scMo');renderHistory();renderBadges();renderDmGrid();
 }
 
-// ─ THREE-SEGMENT PROGRESS BAR + CHANT STATUS ──────
 function updProg(curSec){
-  const targ=getTodayTarget()*60;
-  const dk=todayKey();
-  // All committed today secs
-  const todCommittedSec=S.sessions.filter(s=>s.date===dk).reduce((a,s)=>a+s.durationSec,0);
-  // Total secs including live session
-  const tot=todCommittedSec+(isC?curSec:0);
-
-  // ── Progress bar (only shown when target set) ──
-  const r=document.getElementById('pbRed');
-  const y=document.getElementById('pbYellow');
-  const b=document.getElementById('pbBlue');
-  if(targ>0){
-    const barPct=Math.min(1,tot/targ);
-    const T=33.333;
-    const rP=Math.min(T,barPct*100);
-    const yP=barPct*100>T?Math.min(T,(barPct*100-T)):0;
-    const bP=barPct*100>2*T?Math.min(T,(barPct*100-2*T)):0;
+  var targ=getTodayTarget()*60,dk=todayKey();
+  var todSec=(S.sessions||[]).filter(function(s){return s.date===dk;}).reduce(function(a,s){return a+s.durationSec;},0);
+  var tot=todSec+(isC?curSec:0);
+  var r=document.getElementById('pbRed'),y=document.getElementById('pbYellow'),b=document.getElementById('pbBlue');
+  if(r&&targ>0){
+    var bp=Math.min(1,tot/targ),T=33.333;
+    var rP=Math.min(T,bp*100),yP=bp*100>T?Math.min(T,bp*100-T):0,bP=bp*100>2*T?Math.min(T,bp*100-2*T):0;
     r.style.width=rP+'%';y.style.width=yP+'%';b.style.width=bP+'%';
     r.className='pb-seg pb-red'+(yP===0?' only':'');
     y.className='pb-seg pb-yellow'+(bP===0&&yP>0?' only2':'');
-  } else {
-    r.style.width='0%';y.style.width='0%';b.style.width='0%';
-  }
-
-  // ── Boxes earned today (carry-aware) ──
-  // Total minutes ever = committed boxes × 20 + partial carry + live session
-  const liveMin = isC ? curSec/60 : 0;
-  const totalMinEver = (S.boxesFilled||0)*20 + (S.partialMinutes||0) + liveMin;
-  const totalBoxesWouldBe = Math.floor(totalMinEver / 20);
-  const newBoxesToday = Math.max(0, totalBoxesWouldBe - (S.boxesFilled||0));
-
-  // ── Stat cards ──
-  const elapsedMin = Math.floor(tot/60);
-  const minStr = elapsedMin>0 ? `${elapsedMin}` : (tot>0?'<1':'0');
-  const v=getTodayTarget();
-  document.getElementById('tcVal').textContent=v?`${v}m`:'—';
-
-  // Today's Daimoku card: main value = minutes, sub = daimoku estimate
-  const todayDai=Math.round(tot/60*50);
-  document.getElementById('tdVal').textContent=elapsedMin>0?`${elapsedMin} min`:'—';
-  document.getElementById('tdSub').textContent=todayDai>0
-    ?t(`≈ ${todayDai.toLocaleString()} daimoku`,`约 ${todayDai.toLocaleString()} 句`)
-    :t('min chanted today','今日持题分钟数');
+  } else if(r){r.style.width='0%';y.style.width='0%';b.style.width='0%';}
+  var v=getTodayTarget(),tcV=document.getElementById('tcVal');
+  if(tcV)tcV.textContent=v?(v+'m'):'—';
+  var em=Math.floor(tot/60),dai=Math.round(tot/60*50);
+  var tdV=document.getElementById('tdVal'),tdS=document.getElementById('tdSub');
+  if(tdV)tdV.textContent=em>0?(em+' min'):'—';
+  if(tdS)tdS.textContent=dai>0?(S.lang==='zh'?('约 '+dai.toLocaleString()+' 句'):('≈ '+dai.toLocaleString()+' daimoku')):(S.lang==='zh'?'今日持题':'min chanted today');
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  STREAK
-// ════════════════════════════════════════
-const MLS=[1,10,50,100,300,500];
-const FFLT=[
-  'hue-rotate(270deg) saturate(1.8)',
-  'hue-rotate(200deg) saturate(1.8)',
-  'hue-rotate(100deg) saturate(1.8)',
-  'hue-rotate(40deg) brightness(1.15)',
-  'hue-rotate(15deg) saturate(1.5)',
-  'hue-rotate(0deg) saturate(2.2)',
-];
-function getFireIdx(s){let i=0;for(let j=MLS.length-1;j>=0;j--){if(s>=MLS[j]){i=j;break;}}return i;}
-
+// ═══════════════════════════════════════════════════
+var MLS=[1,10,50,100,300,500];
+var FFLT=['hue-rotate(270deg) saturate(1.8)','hue-rotate(200deg) saturate(1.8)','hue-rotate(100deg) saturate(1.8)','hue-rotate(40deg) brightness(1.15)','hue-rotate(15deg) saturate(1.5)','hue-rotate(0deg) saturate(2.2)'];
+function getFireIdx(s){var i=0;for(var j=MLS.length-1;j>=0;j--){if(s>=MLS[j]){i=j;break;}}return i;}
 function updStreak(dk){
   if(!S.lastChantDate){S.streak=1;}
-  else if(S.lastChantDate===dk){/* same */}
+  else if(S.lastChantDate===dk){}
   else{
-    const d1=new Date(S.lastChantDate+'T03:00:00'),d2=new Date(dk+'T03:00:00');
+    var d1=new Date(S.lastChantDate+'T03:00:00'),d2=new Date(dk+'T03:00:00');
     S.streak=Math.round((d2-d1)/86400000)===1?(S.streak||0)+1:1;
   }
   S.lastChantDate=dk;renderStreakUI();
 }
+function recalcStreak(){
+  var allDates=Array.from(new Set(S.sessions.map(function(s){return s.date;}))).sort();
+  if(!allDates.length){S.streak=0;S.lastChantDate=null;renderStreakUI();return;}
+  var streak=1;
+  for(var i=1;i<allDates.length;i++){
+    var diff=Math.round((new Date(allDates[i]+'T03:00:00')-new Date(allDates[i-1]+'T03:00:00'))/86400000);
+    streak=diff===1?streak+1:1;
+  }
+  var last=allDates[allDates.length-1];
+  if(Math.round((new Date(todayKey()+'T03:00:00')-new Date(last+'T03:00:00'))/86400000)>1)streak=0;
+  S.streak=streak;S.lastChantDate=last;renderStreakUI();
+}
 function checkStreak(){
   if(!S.lastChantDate)return;
-  const d1=new Date(S.lastChantDate+'T03:00:00'),d2=new Date(todayKey()+'T03:00:00');
-  if(Math.round((d2-d1)/86400000)>1){S.streak=0;save();}
+  if(Math.round((new Date(todayKey()+'T03:00:00')-new Date(S.lastChantDate+'T03:00:00'))/86400000)>1){S.streak=0;save();}
 }
 function renderStreakUI(){
-  const s=S.streak||0,i=getFireIdx(s);
-  const ff=s===0?'grayscale(1)':FFLT[i];
+  var s=S.streak||0,i=getFireIdx(s),ff=s===0?'grayscale(1)':FFLT[i];
   document.getElementById('hStreak').textContent=s;
-  let el=document.getElementById('hFire');el.textContent='🔥';el.style.filter=ff;
+  var el=document.getElementById('hFire');el.textContent='🔥';el.style.filter=ff;
   document.getElementById('bigStreak').textContent=s;
   el=document.getElementById('bigFire');el.textContent='🔥';el.style.filter=ff;
-  document.getElementById('bigStreakTxt').textContent=s===0
-    ?t('Start chanting to begin your streak!','开始持题，开启连续记录！')
-    :t(`${s}-day streak — keep going!`,`连续 ${s} 天 — 继续加油！`);
-  document.getElementById('msPills').innerHTML=
-    MLS.map((m,i)=>`<span class="ms ${s>=m?'done':''}">🔥 ${m}${t(' days','天')}</span>`).join('');
+  document.getElementById('bigStreakTxt').textContent=s===0?t('Start chanting to begin your streak!','开始持题，开启连续记录！'):t(s+'-day streak — keep going!','连续 '+s+' 天 — 继续加油！');
+  document.getElementById('msPills').innerHTML=MLS.map(function(m,i){return '<span class="ms '+(s>=m?'done':'')+'">🔥 '+m+t(' days','天')+'</span>';}).join('');
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  DAIMOKU GRID
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function renderDmGrid(){
-  const grid=document.getElementById('dmGrid');
-  const total=S.boxesFilled||0;
-  const chartNo=Math.floor(total/1000)+1;
-  const inChart=total%1000;
+  var grid=document.getElementById('dmGrid'),total=S.boxesFilled||0;
+  var chartNo=Math.floor(total/1000)+1,inChart=total%1000;
   grid.innerHTML='';
-  for(let i=0;i<1000;i++){
-    const b=document.createElement('div');
-    b.className='dm'+(i<inChart?' f':'');
-    grid.appendChild(b);
-  }
+  for(var i=0;i<1000;i++){var b=document.createElement('div');b.className='dm'+(i<inChart?' f':'');grid.appendChild(b);}
   document.getElementById('boxNum').textContent=total.toLocaleString();
-  document.getElementById('boxLbl').textContent=t(`total boxes (Chart #${chartNo})`,`总格数（第 ${chartNo} 张）`);
-  const totMin=Math.round(total*20+(S.partialMinutes||0));
-  const totDai=total*1000;
-  document.getElementById('daiTotal').textContent=
-    t(`Total daimoku: ~${totDai.toLocaleString()}`,`持题总计：约 ${totDai.toLocaleString()} 句`);
-  document.getElementById('dmTot').textContent=
-    t(`≈ ${totMin.toLocaleString()} minutes total  ·  ${inChart}/1,000 on current chart`,
-      `共约 ${totMin.toLocaleString()} 分钟  ·  当前图表 ${inChart}/1,000 格`);
+  document.getElementById('boxLbl').textContent=t('total boxes (Chart #'+chartNo+')','总格数（第 '+chartNo+' 张）');
+  var totMin=Math.round(total*20+(S.partialMinutes||0));
+  document.getElementById('daiTotal').textContent=S.lang==='zh'?('持题总计：约 '+(total*1000).toLocaleString()+' 句'):('Total daimoku: ~'+(total*1000).toLocaleString());
+  document.getElementById('dmTot').textContent=S.lang==='zh'?('共约 '+totMin.toLocaleString()+' 分钟  ·  当前图表 '+inChart+'/1,000 格'):('≈ '+totMin.toLocaleString()+' minutes total  ·  '+inChart+'/1,000 on current chart');
 }
-
 function animFly(oldT,newT){
-  const cb=document.getElementById('chantBtn');
-  const cn=document.getElementById('nav-chart');
-  const br=cb.getBoundingClientRect(),nr=cn.getBoundingClientRect();
-  setTimeout(()=>{
-    const f=document.createElement('div');f.className='fly';
-    f.style.cssText=`left:${br.left+br.width/2-7}px;top:${br.top+br.height/2-7}px`;
+  var cb=document.getElementById('chantBtn'),cn=document.getElementById('nav-chart');
+  var br=cb.getBoundingClientRect(),nr=cn.getBoundingClientRect();
+  setTimeout(function(){
+    var f=document.createElement('div');f.className='fly';
+    f.style.left=(br.left+br.width/2-7)+'px';f.style.top=(br.top+br.height/2-7)+'px';
     document.body.appendChild(f);
-    setTimeout(()=>{f.style.left=(nr.left+nr.width/2-7)+'px';f.style.top=(nr.top+4)+'px';f.style.transform='scale(0.4)';f.style.opacity='0';},60);
-    setTimeout(()=>{
+    setTimeout(function(){f.style.left=(nr.left+nr.width/2-7)+'px';f.style.top=(nr.top+4)+'px';f.style.transform='scale(0.4)';f.style.opacity='0';},60);
+    setTimeout(function(){
       f.remove();renderDmGrid();
-      const grid=document.getElementById('dmGrid');
-      const n=newT-oldT;
-      for(let i=0;i<n&&i<1000;i++){
-        const idx=(oldT+i)%1000;const box=grid.children[idx];
-        if(box){box.classList.add('f');setTimeout(()=>box.classList.add('new'),i*120);}
+      var grid=document.getElementById('dmGrid'),n=newT-oldT;
+      for(var i=0;i<n&&i<1000;i++){
+        var idx=(oldT+i)%1000,box=grid.children[idx];
+        if(box){box.classList.add('f');(function(bx){setTimeout(function(){bx.classList.add('new');},i*120);})(box);}
       }
     },960);
   },350);
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  HISTORY
-// ════════════════════════════════════════
-let histTab='day',cType='line',histMetric='time',chartInst=null,chartInstY=null;
-
-function switchTab(tab,btn){
-  histTab=tab;
-  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderHistory();
-}
-function setCT(type,btn){
-  cType=type;
-  ['ctLine','ctBar'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('active');});
-  btn.classList.add('active');buildChart();
-}
-function setHistMetric(m,btn){
-  histMetric=m;
-  ['hmTime','hmDai'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('active');});
-  btn.classList.add('active');buildChart();buildList();
-}
+// ═══════════════════════════════════════════════════
+var histTab='day',cType='line',histMetric='time',chartInst=null,chartInstY=null;
+var expanded={months:new Set(),weeks:new Set()};
+function switchTab(tab,btn){histTab=tab;document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderHistory();}
+function setCT(type,btn){cType=type;['ctLine','ctBar'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('active');});btn.classList.add('active');buildChart();}
+function setHM(m,btn){histMetric=m;['hmTime','hmDai'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('active');});btn.classList.add('active');buildChart();buildList();}
 function renderHistory(){buildChart();buildList();}
 
-// Two chart instances for floating Y-axis
-
 function buildChart(){
-  const ss=S.sessions||[];
-  let labels=[],data=[];
-  const lc=S.lang==='zh'?'zh-CN':'en-SG';
-  const xAxis=histTab==='day'?'days':histTab==='week'?'weeks':'months';
-
+  var ss=S.sessions||[],labels=[],data=[];
+  var lc=S.lang==='zh'?'zh-CN':'en-SG';
+  var xAxis=histTab==='day'?'days':histTab==='week'?'weeks':'months';
+  function secs2val(s){return histMetric==='time'?Math.round(s/60):Math.round(s/60*50);}
   if(!ss.length){
-    // No data — show empty chart with today only
-    const d=new Date();d.setHours(12,0,0,0);
-    labels=[d.toLocaleDateString(lc,{month:'short',day:'numeric'})];
-    data=[0];
+    var d0=new Date();d0.setHours(12,0,0,0);
+    labels=[d0.toLocaleDateString(lc,{month:'short',day:'numeric'})];data=[0];
   } else if(xAxis==='days'){
-    // Range: first session date to today, day by day
-    const firstDate=ss.reduce((a,s)=>s.date<a?s.date:a,ss[0].date);
-    const start=new Date(firstDate+'T12:00:00');
-    const today=new Date();today.setHours(12,0,0,0);
-    for(let d=new Date(start);d<=today;d.setDate(d.getDate()+1)){
-      const dk=d.toISOString().split('T')[0];
-      const secs=ss.filter(s=>s.date===dk).reduce((a,s)=>a+s.durationSec,0);
-      labels.push(new Date(dk+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'}));
-      data.push(histMetric==='time'?Math.round(secs/60):Math.round(secs/60*50));
+    var firstD=ss.reduce(function(a,s){return s.date<a?s.date:a;},ss[0].date);
+    var start=new Date(firstD+'T12:00:00'),today0=new Date();today0.setHours(12,0,0,0);
+    for(var d=new Date(start);d<=today0;d.setDate(d.getDate()+1)){
+      var dk0=d.toISOString().split('T')[0];
+      var secs0=ss.filter(function(s){return s.date===dk0;}).reduce(function(a,s){return a+s.durationSec;},0);
+      labels.push(new Date(dk0+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'}));data.push(secs2val(secs0));
     }
-    document.getElementById('chartTitle').textContent=histMetric==='time'
-      ?t('Daily (min)','每日（分钟）'):t('Daily (daimoku)','每日（句）');
-
+    document.getElementById('chartTitle').textContent=histMetric==='time'?t('Daily (min)','每日（分钟）'):t('Daily (daimoku)','每日（句）');
   } else if(xAxis==='weeks'){
-    // Range: week containing first session to current week
-    const firstDate=ss.reduce((a,s)=>s.date<a?s.date:a,ss[0].date);
-    const fDay=new Date(firstDate+'T12:00:00');
-    const fSun=new Date(fDay);fSun.setDate(fDay.getDate()-fDay.getDay());
-    const todayNoon=new Date();todayNoon.setHours(12,0,0,0);
-    const thisSun=new Date(todayNoon);thisSun.setDate(todayNoon.getDate()-todayNoon.getDay());
-    for(let wSun=new Date(fSun);wSun<=thisSun;wSun.setDate(wSun.getDate()+7)){
-      const wSat=new Date(wSun);wSat.setDate(wSun.getDate()+6);
-      const wSunKey=wSun.toISOString().split('T')[0];
-      const wSatKey=wSat.toISOString().split('T')[0];
-      const secs=ss.filter(s=>s.date>=wSunKey&&s.date<=wSatKey).reduce((a,s)=>a+s.durationSec,0);
-      labels.push(new Date(wSunKey+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'}));
-      data.push(histMetric==='time'?Math.round(secs/60):Math.round(secs/60*50));
+    var firstD2=ss.reduce(function(a,s){return s.date<a?s.date:a;},ss[0].date);
+    var fDay=new Date(firstD2+'T12:00:00');var fSun=new Date(fDay);fSun.setDate(fDay.getDate()-fDay.getDay());
+    var todN=new Date();todN.setHours(12,0,0,0);var thisSun=new Date(todN);thisSun.setDate(todN.getDate()-todN.getDay());
+    for(var wS=new Date(fSun);wS<=thisSun;wS.setDate(wS.getDate()+7)){
+      var wSat=new Date(wS);wSat.setDate(wS.getDate()+6);
+      var wSK=wS.toISOString().split('T')[0],wEK=wSat.toISOString().split('T')[0];
+      var sW=ss.filter(function(s){return s.date>=wSK&&s.date<=wEK;}).reduce(function(a,s){return a+s.durationSec;},0);
+      labels.push(new Date(wSK+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'}));data.push(secs2val(sW));
     }
-    document.getElementById('chartTitle').textContent=histMetric==='time'
-      ?t('Weekly (min)','每周（分钟）'):t('Weekly (daimoku)','每周（句）');
-
+    document.getElementById('chartTitle').textContent=histMetric==='time'?t('Weekly (min)','每周（分钟）'):t('Weekly (daimoku)','每周（句）');
   } else {
-    // Range: month of first session to current month
-    const firstDate=ss.reduce((a,s)=>s.date<a?s.date:a,ss[0].date);
-    const fYear=parseInt(firstDate.substr(0,4)),fMon=parseInt(firstDate.substr(5,2))-1;
-    const now=new Date();
-    for(let y=fYear,mo=fMon;;){
-      const d=new Date(y,mo,1);
-      if(d>now)break;
-      const ym=`${y}-${String(mo+1).padStart(2,'0')}`;
-      const secs=ss.filter(s=>s.date.startsWith(ym)).reduce((a,s)=>a+s.durationSec,0);
-      labels.push(d.toLocaleDateString(lc,{year:'numeric',month:'short'}));
-      data.push(histMetric==='time'?Math.round(secs/60):Math.round(secs/60*50));
+    var firstD3=ss.reduce(function(a,s){return s.date<a?s.date:a;},ss[0].date);
+    var fY=parseInt(firstD3.substr(0,4)),fM=parseInt(firstD3.substr(5,2))-1,now2=new Date();
+    for(var y=fY,mo=fM;;){
+      var dm=new Date(y,mo,1);if(dm>now2)break;
+      var ym=y+'-'+String(mo+1).padStart(2,'0');
+      var sM=ss.filter(function(s){return s.date.startsWith(ym);}).reduce(function(a,s){return a+s.durationSec;},0);
+      labels.push(dm.toLocaleDateString(lc,{year:'numeric',month:'short'}));data.push(secs2val(sM));
       mo++;if(mo>11){mo=0;y++;}
     }
-    document.getElementById('chartTitle').textContent=histMetric==='time'
-      ?t('Monthly (min)','每月（分钟）'):t('Monthly (daimoku)','每月（句）');
+    document.getElementById('chartTitle').textContent=histMetric==='time'?t('Monthly (min)','每月（分钟）'):t('Monthly (daimoku)','每月（句）');
   }
-
-  // Shared Y max
-  const yMax=data.length?Math.max(...data)*1.15||10:10;
-  const dark=S.theme==='dark';
-  const tc=dark?'#8892b0':'#6b7280';
-  const gc=dark?'rgba(100,140,220,.12)':'rgba(26,79,160,.08)';
-
+  var yMax=data.length?Math.max.apply(null,data)*1.15||10:10;
+  var dark=S.theme==='dark',tc=dark?'#8892b0':'#6b7280',gc=dark?'rgba(100,140,220,.12)':'rgba(26,79,160,.08)';
   if(chartInst){chartInst.destroy();chartInst=null;}
   if(chartInstY){chartInstY.destroy();chartInstY=null;}
-
-  const cwWrap=document.querySelector('.cw');
+  var cwWrap=document.querySelector('.cw');
   cwWrap.innerHTML='<canvas id="histChart"></canvas>';
-  const canvas=document.getElementById('histChart');
-  const pxPerLabel=xAxis==='days'?26:xAxis==='weeks'?38:46;
-  const canvasW=Math.max(labels.length*pxPerLabel,cwWrap.clientWidth||280);
-  canvas.width=canvasW;canvas.height=190;
-
-  const yAxisW=calcYAxisW(yMax);
-  const ywWrap=document.querySelector('.chart-yaxis-wrap');
-  ywWrap.style.width=yAxisW+'px';
-  ywWrap.innerHTML='<canvas id="histChartY"></canvas>';
-  const canvasY=document.getElementById('histChartY');
-  canvasY.width=yAxisW;canvasY.height=190;
-
-  setTimeout(()=>{cwWrap.scrollLeft=cwWrap.scrollWidth;},80);
-
-  const tooltipLabel=item=>{
-    const v=item.raw;
-    return histMetric==='time'?`${v} min`:`${v.toLocaleString()} daimoku`;
-  };
-
-  chartInst=new Chart(canvas,{
-    type:cType,
-    data:{labels,datasets:[{
-      label:histMetric==='time'?t('Minutes','分钟'):t('Daimoku','句'),
-      data,borderColor:'#2d6bc4',
-      backgroundColor:cType==='line'?'rgba(26,79,160,.08)':'rgba(26,79,160,.68)',
-      borderWidth:2,pointBackgroundColor:'#1a4fa0',
-      pointRadius:cType==='line'?3:0,tension:.35,fill:cType==='line'
-    }]},
-    options:{
-      responsive:false,maintainAspectRatio:false,animation:{duration:200},
-      layout:{padding:{left:0,right:8,top:8,bottom:0}},
-      plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>labels[items[0].dataIndex],label:tooltipLabel}}},
-      scales:{
-        x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:55,autoSkip:false}},
-        y:{display:false,min:0,max:yMax}
-      }
-    }
-  });
-
-  chartInstY=new Chart(canvasY,{
-    type:'bar',
-    data:{labels:[''],datasets:[{data:[0],backgroundColor:'transparent',borderColor:'transparent'}]},
-    options:{
-      responsive:false,maintainAspectRatio:false,animation:{duration:0},
-      layout:{padding:{left:4,right:0,top:8,bottom:0}},
-      plugins:{legend:{display:false},tooltip:{enabled:false}},
-      scales:{
-        x:{display:false},
-        y:{position:'left',min:0,max:yMax,grid:{color:gc,drawBorder:false},
-          ticks:{color:tc,font:{size:9},maxTicksLimit:6,callback:v=>fmtYTick(v)}}
-      }
-    }
-  });
+  var canvas=document.getElementById('histChart');
+  var pxPL=xAxis==='days'?26:xAxis==='weeks'?38:46;
+  canvas.width=Math.max(labels.length*pxPL,cwWrap.clientWidth||280);canvas.height=190;
+  var yW=calcYAxisW(yMax),ywWrap=document.querySelector('.chart-yaxis-wrap');
+  ywWrap.style.width=yW+'px';ywWrap.innerHTML='<canvas id="histChartY"></canvas>';
+  var cY=document.getElementById('histChartY');cY.width=yW;cY.height=190;
+  setTimeout(function(){cwWrap.scrollLeft=cwWrap.scrollWidth;},80);
+  chartInst=new Chart(canvas,{type:cType,data:{labels:labels,datasets:[{label:histMetric==='time'?t('Minutes','分钟'):t('Daimoku','句'),data:data,borderColor:'#2d6bc4',backgroundColor:cType==='line'?'rgba(26,79,160,.08)':'rgba(26,79,160,.68)',borderWidth:2,pointBackgroundColor:'#1a4fa0',pointRadius:cType==='line'?3:0,tension:.35,fill:cType==='line'}]},options:{responsive:false,maintainAspectRatio:false,animation:{duration:200},layout:{padding:{left:0,right:8,top:8,bottom:0}},plugins:{legend:{display:false},tooltip:{callbacks:{title:function(items){return labels[items[0].dataIndex];},label:function(item){return histMetric==='time'?(item.raw+' min'):(item.raw.toLocaleString()+' daimoku');}}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:55,autoSkip:false}},y:{display:false,min:0,max:yMax}}}});
+  chartInstY=new Chart(cY,{type:'bar',data:{labels:[''],datasets:[{data:[0],backgroundColor:'transparent',borderColor:'transparent'}]},options:{responsive:false,maintainAspectRatio:false,animation:{duration:0},layout:{padding:{left:4,right:0,top:8,bottom:0}},plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{position:'left',min:0,max:yMax,grid:{color:gc,drawBorder:false},ticks:{color:tc,font:{size:9},maxTicksLimit:6,callback:function(v){return fmtYTick(v);}}}}}});
 }
-
-// Format seconds as "Xd Yh Zm Ws" omitting zero units
-function fmtDuration(s){
-  if(s<=0)return '0s';
-  const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),sec=s%60;
-  let parts=[];
-  if(d)parts.push(`${d}d`);
-  if(h)parts.push(`${h}h`);
-  if(m)parts.push(`${m}m`);
-  if(sec||parts.length===0)parts.push(`${sec}s`);
-  return parts.join(' ');
-}
-// Daimoku count and boxes from seconds
-function fmtDaimoku(secs){
-  const dai=Math.round(secs/60*50);
-  const boxes=Math.floor(secs/60/20);
-  return boxes>0
-    ?t(`~${dai.toLocaleString()} daimoku (${boxes} box${boxes>1?'es':''})`,`约${dai.toLocaleString()}句（${boxes}格）`)
-    :t(`~${dai.toLocaleString()} daimoku`,`约${dai.toLocaleString()}句`);
-}
-// Y-axis tick formatter — abbreviates large numbers
-function fmtYTick(v){
-  if(v>=1000000)return (v/1000000).toFixed(v%1000000===0?0:1)+'M';
-  if(v>=1000)return (v/1000).toFixed(v%1000===0?0:1)+'K';
-  return String(Math.round(v));
-}
-// Compute the pixel width needed to display a Y-axis tick label without clipping
-function calcYAxisW(yMax){
-  const label=fmtYTick(yMax);
-  // 7.5px per character at size-9, plus Chart.js internal padding (~28px left) + 6px right gap
-  return Math.max(52, Math.ceil(label.length*7.5)+34);
-}
-
-// ── Expand/collapse state for the drill-down log ──
-const expanded={months:new Set(),weeks:new Set()};
 
 function buildList(){
-  const ss=S.sessions||[];
-  const wrap=document.getElementById('listWrap');
-  if(!ss.length){
-    wrap.innerHTML=`<div style="text-align:center;padding:28px;color:var(--muted);font-size:var(--fs-sm)">${t('No sessions yet. Start chanting!','暂无记录，开始持题吧！')}</div>`;
-    return;
-  }
-  const lc=S.lang==='zh'?'zh-CN':'en-SG';
-
-  // Group all sessions by month > week-start > day
-  const months={};
-  ss.forEach(s=>{
-    const ym=s.date.substr(0,7);
-    const d=new Date(s.date+'T03:00:00');
-    const ws=new Date(d);ws.setDate(d.getDate()-d.getDay());
-    const wk=ws.toISOString().split('T')[0];
-    if(!months[ym])months[ym]={secs:0,weeks:{}};
-    months[ym].secs+=s.durationSec;
-    if(!months[ym].weeks[wk])months[ym].weeks[wk]={secs:0,days:{}};
-    months[ym].weeks[wk].secs+=s.durationSec;
+  var ss=S.sessions||[],wrap=document.getElementById('listWrap');
+  if(!ss.length){wrap.innerHTML='<div style="text-align:center;padding:28px;color:var(--muted);font-size:var(--fs-sm)">'+t('No sessions yet. Start chanting!','暂无记录，开始持题吧！')+'</div>';return;}
+  var lc=S.lang==='zh'?'zh-CN':'en-SG';
+  var months={};
+  ss.forEach(function(s){
+    var ym=s.date.substr(0,7),d=new Date(s.date+'T03:00:00'),ws=new Date(d);ws.setDate(d.getDate()-d.getDay());
+    var wk=ws.toISOString().split('T')[0];
+    if(!months[ym])months[ym]={secs:0,weeks:{}};months[ym].secs+=s.durationSec;
+    if(!months[ym].weeks[wk])months[ym].weeks[wk]={secs:0,days:{}};months[ym].weeks[wk].secs+=s.durationSec;
     if(!months[ym].weeks[wk].days[s.date])months[ym].weeks[wk].days[s.date]={secs:0,sessions:[]};
-    months[ym].weeks[wk].days[s.date].secs+=s.durationSec;
-    months[ym].weeks[wk].days[s.date].sessions.push(s);
+    months[ym].weeks[wk].days[s.date].secs+=s.durationSec;months[ym].weeks[wk].days[s.date].sessions.push(s);
   });
-
-  const sortedMonths=Object.keys(months).sort().reverse();
-  let html='';
-
-  function valStr(secs){
-    return histMetric==='time'?fmtDuration(secs):fmtDaimoku(secs);
-  }
-
-  sortedMonths.forEach(ym=>{
-    const mData=months[ym];
-    const mDate=new Date(ym+'-01');
-    const mLbl=mDate.toLocaleDateString(lc,{year:'numeric',month:'long'});
-    const mOpen=expanded.months.has(ym);
-    html+=`<div class="log-month" data-ym="${ym}">
-      <div class="log-row log-m-row ${mOpen?'open':''}">
-        <span class="log-arrow">${mOpen?'▾':'▸'}</span>
-        <span class="log-lbl">${mLbl}</span>
-        <span class="log-val">${valStr(mData.secs)}</span>
-      </div>`;
-
-    if(mOpen){
-      const sortedWeeks=Object.keys(mData.weeks).sort().reverse();
-      sortedWeeks.forEach(wk=>{
-        const wData=mData.weeks[wk];
-        const wEnd=new Date(wk+'T03:00:00');wEnd.setDate(wEnd.getDate()+6);
-        const wLbl=t(`Wk ${new Date(wk+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'})}`,
-                     `${new Date(wk+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'})}周`);
-        const wOpen=expanded.weeks.has(wk);
-        html+=`<div class="log-week" data-wk="${wk}">
-          <div class="log-row log-w-row ${wOpen?'open':''}">
-            <span class="log-arrow">${wOpen?'▾':'▸'}</span>
-            <span class="log-lbl">${wLbl}</span>
-            <span class="log-val">${valStr(wData.secs)}</span>
-          </div>`;
-
-        if(wOpen){
-          const sortedDays=Object.keys(wData.days).sort().reverse();
-          sortedDays.forEach(dk=>{
-            const dData=wData.days[dk];
-            const dLbl=new Date(dk+'T12:00:00').toLocaleDateString(lc,{weekday:'short',month:'short',day:'numeric'});
-            html+=`<div class="log-day-hd">
-              <span class="log-lbl">${dLbl}</span>
-              <span class="log-val">${valStr(dData.secs)}</span>
-            </div>`;
-            dData.sessions.slice().reverse().forEach(s=>{
-              const sid=s.id||('s'+s.ts);
-              const ts=s.ts?new Date(s.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-              html+=`<div class="si">
-                <div><div class="sid">${ts||s.date}</div></div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div class="sidr" style="font-size:var(--fs-xs)">${valStr(s.durationSec)}</div>
-                  <button class="del-btn" data-sid="${sid}" title="${t('Delete','删除')}">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
-                  </button>
-                </div>
-              </div>`;
-            });
-          });
-        }
-        html+='</div>';
-      });
-    }
+  function vs(secs){return histMetric==='time'?fmtDuration(secs):fmtDaimoku(secs);}
+  var html='';
+  Object.keys(months).sort().reverse().forEach(function(ym){
+    var mD=months[ym],mLbl=new Date(ym+'-01').toLocaleDateString(lc,{year:'numeric',month:'long'}),mO=expanded.months.has(ym);
+    html+='<div class="log-month" data-ym="'+ym+'"><div class="log-row log-m-row'+(mO?' open':'')+'"><span class="log-arrow">'+(mO?'&#x25BE;':'&#x25B8;')+'</span><span class="log-lbl">'+mLbl+'</span><span class="log-val">'+vs(mD.secs)+'</span></div>';
+    if(mO){Object.keys(mD.weeks).sort().reverse().forEach(function(wk){
+      var wD=mD.weeks[wk],wLbl='Wk '+new Date(wk+'T12:00:00').toLocaleDateString(lc,{month:'short',day:'numeric'}),wO=expanded.weeks.has(wk);
+      html+='<div class="log-week" data-wk="'+wk+'"><div class="log-row log-w-row'+(wO?' open':'')+'"><span class="log-arrow">'+(wO?'&#x25BE;':'&#x25B8;')+'</span><span class="log-lbl">'+wLbl+'</span><span class="log-val">'+vs(wD.secs)+'</span></div>';
+      if(wO){Object.keys(wD.days).sort().reverse().forEach(function(dk){
+        var dD=wD.days[dk],dLbl=new Date(dk+'T12:00:00').toLocaleDateString(lc,{weekday:'short',month:'short',day:'numeric'});
+        html+='<div class="log-day-hd"><span class="log-lbl">'+dLbl+'</span><span class="log-val">'+vs(dD.secs)+'</span></div>';
+        dD.sessions.slice().reverse().forEach(function(s){
+          var sid=s.id||('s'+s.ts),ts=s.ts?new Date(s.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
+          html+='<div class="si"><div><div class="sid">'+ts+'</div></div><div style="display:flex;align-items:center;gap:8px"><div class="sidr" style="font-size:var(--fs-xs)">'+vs(s.durationSec)+'</div><button class="del-btn" data-sid="'+sid+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg></button></div></div>';
+        });
+      });}
+      html+='</div>';
+    });}
     html+='</div>';
   });
   wrap.innerHTML=html;
-
-  // Month toggle
-  wrap.querySelectorAll('.log-m-row').forEach(row=>{
-    row.addEventListener('click',()=>{
-      const ym=row.closest('.log-month').dataset.ym;
-      if(expanded.months.has(ym))expanded.months.delete(ym);
-      else expanded.months.add(ym);
-      buildList();
-    });
-  });
-  // Week toggle
-  wrap.querySelectorAll('.log-w-row').forEach(row=>{
-    row.addEventListener('click',()=>{
-      const wk=row.closest('.log-week').dataset.wk;
-      if(expanded.weeks.has(wk))expanded.weeks.delete(wk);
-      else expanded.weeks.add(wk);
-      buildList();
-    });
-  });
+  wrap.querySelectorAll('.log-m-row').forEach(function(row){row.addEventListener('click',function(){var ym=row.closest('.log-month').dataset.ym;if(expanded.months.has(ym))expanded.months.delete(ym);else expanded.months.add(ym);buildList();});});
+  wrap.querySelectorAll('.log-w-row').forEach(function(row){row.addEventListener('click',function(){var wk=row.closest('.log-week').dataset.wk;if(expanded.weeks.has(wk))expanded.weeks.delete(wk);else expanded.weeks.add(wk);buildList();});});
 }
 
-function openAddMo(){
-  document.getElementById('addDate').value=todayKey();
-  document.getElementById('addMins').value='';
-  openMo('addMo');
-}
+function openAddMo(){document.getElementById('addDate').value=todayKey();document.getElementById('addMins').value='';openMo('addMo');}
 function addPastSession(){
-  const date=document.getElementById('addDate').value;
-  const mins=parseInt(document.getElementById('addMins').value);
+  var date=document.getElementById('addDate').value,mins=parseInt(document.getElementById('addMins').value);
   if(!date||!mins||mins<1){showToast(t('Enter valid date & duration','请输入有效日期和时长'));return;}
   if(mins>1440){showToast(t('Max 24 hours (1440 min)','最多24小时（1440分钟）'));return;}
-  S.sessions.push({id:'s'+Date.now(),date,durationSec:mins*60,ts:new Date(date+'T12:00:00').getTime()});
-  recalcBoxes();   // recompute from all sessions — avoids partial carry overflow
-  recalcStreak();
-  save();closeMo('addMo');renderHistory();renderDmGrid();renderBadges();
+  S.sessions.push({id:'s'+Date.now(),date:date,durationSec:mins*60,ts:new Date(date+'T12:00:00').getTime()});
+  recalcBoxes();recalcStreak();save();closeMo('addMo');renderHistory();renderDmGrid();renderBadges();
   showToast(t('Session added!','记录已添加！'));
 }
 
-function recalcStreak(){
-  const allDates=[...new Set(S.sessions.map(s=>s.date))].sort();
-  if(!allDates.length){S.streak=0;S.lastChantDate=null;renderStreakUI();return;}
-  let streak=1;
-  for(let i=1;i<allDates.length;i++){
-    const diff=Math.round((new Date(allDates[i]+'T03:00:00')-new Date(allDates[i-1]+'T03:00:00'))/86400000);
-    streak=diff===1?streak+1:1;
-  }
-  const last=allDates[allDates.length-1];
-  const gap=Math.round((new Date(todayKey()+'T03:00:00')-new Date(last+'T03:00:00'))/86400000);
-  if(gap>1)streak=0;
-  S.streak=streak;S.lastChantDate=last;renderStreakUI();
-}
-
-// Recompute boxesFilled and partialMinutes from scratch based on all sessions
-function recalcBoxes(){
-  const totalSecs=(S.sessions||[]).reduce((a,s)=>a+s.durationSec,0);
-  const totalMin=totalSecs/60;
-  S.boxesFilled=Math.floor(totalMin/20);
-  S.partialMinutes=totalMin%20;
-}
-
-// Pending delete sid — set when modal opens, used when confirmed
-let pendingDeleteSid=null;
-
-function deleteSession(sid){
-  pendingDeleteSid=sid;
-  openMo('delMo');
-}
-
+var pendingDeleteSid=null;
+function deleteSession(sid){pendingDeleteSid=sid;openMo('delMo');}
 function confirmDelete(){
   if(!pendingDeleteSid)return;
-  S.sessions=S.sessions.filter(s=>s.id!==pendingDeleteSid);
-  recalcBoxes();
-  recalcStreak();
-  save();
-  closeMo('delMo');
-  pendingDeleteSid=null;
-  renderHistory();renderDmGrid();renderBadges();
-  updProg(isC?Math.floor(elMs/1000):0);
+  S.sessions=S.sessions.filter(function(s){return s.id!==pendingDeleteSid;});
+  recalcBoxes();recalcStreak();save();closeMo('delMo');pendingDeleteSid=null;
+  renderHistory();renderDmGrid();renderBadges();updProg(isC?Math.floor(elMs/1000):0);
   showToast(t('Session deleted.','记录已删除。'));
 }
-// Returns the highest single-day total durationSec across ALL sessions (any date)
-function bestDayTotal(state){
-  const byDay={};
-  (state.sessions||[]).forEach(s=>{
-    byDay[s.date]=(byDay[s.date]||0)+s.durationSec;
-  });
-  const vals=Object.values(byDay);
-  return vals.length?Math.max(...vals):0;
-}
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  BADGES
-// ════════════════════════════════════════
-const BADGES=[
-  {ico:'🌟',en:['First Chant','Complete your first session'],zh:['初次持题','完成第一次持题'],ok:S=>S.sessions.length>=1},
-  {ico:'🎯',en:['On Target','Hit daily target'],zh:['达成目标','达成每日目标'],ok:S=>{
-    const dk=todayKey(),tg=getTodayTarget()*60;
-    return tg>0&&S.sessions.filter(x=>x.date===dk).reduce((a,b)=>a+b.durationSec,0)>=tg;
-  }},
-  {ico:'🔥',en:['3-Day Streak','3 consecutive days'],zh:['3天连续','连续3天'],ok:S=>(S.streak||0)>=3},
-  {ico:'💪',en:['7-Day Streak','7 consecutive days'],zh:['7天连续','连续7天'],ok:S=>(S.streak||0)>=7},
-  {ico:'🌙',en:['30-Day Streak','30 consecutive days'],zh:['30天连续','连续30天'],ok:S=>(S.streak||0)>=30},
-  {ico:'🏅',en:['100-Day Streak','100 consecutive days'],zh:['100天连续','连续100天'],ok:S=>(S.streak||0)>=100},
-  {ico:'📦',en:['10 Boxes','Fill 10 chart boxes'],zh:['10格','完成10格'],ok:S=>(S.boxesFilled||0)>=10},
-  {ico:'🗂️',en:['100 Boxes','Fill 100 boxes'],zh:['100格','完成100格'],ok:S=>(S.boxesFilled||0)>=100},
-  {ico:'🌸',en:['1 Million Daimoku!','Fill 1,000 boxes (1M daimoku)'],zh:['百万题目！','完成1000格（100万句）'],ok:S=>(S.boxesFilled||0)>=1000},
-  {ico:'🏆',en:['2 Million Daimoku!','Fill 2,000 boxes (2M daimoku)'],zh:['两百万题目！','完成2000格（200万句）'],ok:S=>(S.boxesFilled||0)>=2000},
-  {ico:'⏱️',en:['1-Hour Day','Chant 1 hour in a single day'],zh:['单日1小时','单日持题1小时'],ok:S=>bestDayTotal(S)>=3600},
-  {ico:'⏰',en:['2-Hour Day','Chant 2 hours in a single day'],zh:['单日2小时','单日持题2小时'],ok:S=>bestDayTotal(S)>=7200},
-  {ico:'🕐',en:['3-Hour Day','Chant 3 hours in a single day'],zh:['单日3小时','单日持题3小时'],ok:S=>bestDayTotal(S)>=10800},
-  {ico:'🕓',en:['4-Hour Day','Chant 4 hours in a single day'],zh:['单日4小时','单日持题4小时'],ok:S=>bestDayTotal(S)>=14400},
-  {ico:'🕔',en:['5-Hour Day','Chant 5 hours in a single day'],zh:['单日5小时','单日持题5小时'],ok:S=>bestDayTotal(S)>=18000},
-  {ico:'🕕',en:['6-Hour Day','Chant 6 hours in a single day'],zh:['单日6小时','单日持题6小时'],ok:S=>bestDayTotal(S)>=21600},
-  {ico:'🕖',en:['7-Hour Day','Chant 7 hours in a single day'],zh:['单日7小时','单日持题7小时'],ok:S=>bestDayTotal(S)>=25200},
-  {ico:'🕗',en:['8-Hour Day','Chant 8 hours in a single day'],zh:['单日8小时','单日持题8小时'],ok:S=>bestDayTotal(S)>=28800},
-  {ico:'📜',en:['60 Sessions','Complete 60 sessions'],zh:['60次持题','完成60次'],ok:S=>S.sessions.length>=60},
+// ═══════════════════════════════════════════════════
+var BADGES=[
+  {ico:'🌟',en:['First Chant','Complete your first session'],zh:['初次持题','完成第一次持题'],ok:function(S){return S.sessions.length>=1;}},
+  {ico:'🎯',en:['On Target','Hit daily target today'],zh:['达成目标','完成今日每日目标'],ok:function(S){var dk=todayKey(),tg=getTodayTarget()*60;return tg>0&&S.sessions.filter(function(x){return x.date===dk;}).reduce(function(a,b){return a+b.durationSec;},0)>=tg;}},
+  {ico:'🔥',en:['3-Day Streak','3 consecutive days'],zh:['3天连续','连续3天'],ok:function(S){return (S.streak||0)>=3;}},
+  {ico:'💪',en:['7-Day Streak','7 consecutive days'],zh:['7天连续','连续7天'],ok:function(S){return (S.streak||0)>=7;}},
+  {ico:'🌙',en:['30-Day Streak','30 consecutive days'],zh:['30天连续','连续30天'],ok:function(S){return (S.streak||0)>=30;}},
+  {ico:'🏅',en:['100-Day Streak','100 consecutive days'],zh:['100天连续','连续100天'],ok:function(S){return (S.streak||0)>=100;}},
+  {ico:'📦',en:['10 Boxes','Fill 10 chart boxes'],zh:['10格','完成10格'],ok:function(S){return (S.boxesFilled||0)>=10;}},
+  {ico:'🗂️',en:['100 Boxes','Fill 100 boxes'],zh:['100格','完成100格'],ok:function(S){return (S.boxesFilled||0)>=100;}},
+  {ico:'🌸',en:['1 Million Daimoku!','Fill 1,000 boxes (1M daimoku)'],zh:['百万题目！','完成1000格（100万句）'],ok:function(S){return (S.boxesFilled||0)>=1000;}},
+  {ico:'🏆',en:['2 Million Daimoku!','Fill 2,000 boxes (2M daimoku)'],zh:['两百万题目！','完成2000格（200万句）'],ok:function(S){return (S.boxesFilled||0)>=2000;}},
+  {ico:'⏱️',en:['1-Hour Day','Chant 1 hour in a single day'],zh:['单日1小时','单日持题1小时'],ok:function(S){return bestDayTotal(S)>=3600;}},
+  {ico:'⏰',en:['2-Hour Day','Chant 2 hours in a single day'],zh:['单日2小时','单日持题2小时'],ok:function(S){return bestDayTotal(S)>=7200;}},
+  {ico:'🕐',en:['3-Hour Day','Chant 3 hours in a single day'],zh:['单日3小时','单日持题3小时'],ok:function(S){return bestDayTotal(S)>=10800;}},
+  {ico:'🕓',en:['4-Hour Day','Chant 4 hours in a single day'],zh:['单日4小时','单日持题4小时'],ok:function(S){return bestDayTotal(S)>=14400;}},
+  {ico:'🕔',en:['5-Hour Day','Chant 5 hours in a single day'],zh:['单日5小时','单日持题5小时'],ok:function(S){return bestDayTotal(S)>=18000;}},
+  {ico:'🕕',en:['6-Hour Day','Chant 6 hours in a single day'],zh:['单日6小时','单日持题6小时'],ok:function(S){return bestDayTotal(S)>=21600;}},
+  {ico:'🕖',en:['7-Hour Day','Chant 7 hours in a single day'],zh:['单日7小时','单日持题7小时'],ok:function(S){return bestDayTotal(S)>=25200;}},
+  {ico:'🕗',en:['8-Hour Day','Chant 8 hours in a single day'],zh:['单日8小时','单日持题8小时'],ok:function(S){return bestDayTotal(S)>=28800;}},
+  {ico:'📜',en:['60 Sessions','Complete 60 sessions'],zh:['60次持题','完成60次'],ok:function(S){return S.sessions.length>=60;}}
 ];
 function renderBadges(){
-  const zh=S.lang==='zh';
-  document.getElementById('badgeGrid').innerHTML=BADGES.map(b=>{
-    const e=b.ok(S);
-    return `<div class="bc ${e?'earned':'locked'}"><div class="bi">${b.ico}</div><div class="bn">${zh?b.zh[0]:b.en[0]}</div><div class="bd">${zh?b.zh[1]:b.en[1]}</div>${e?`<div class="bel">${t('Earned!','已获得！')}</div>`:''}</div>`;
+  var zh=S.lang==='zh';
+  document.getElementById('badgeGrid').innerHTML=BADGES.map(function(b){
+    var e=b.ok(S);
+    return '<div class="bc '+(e?'earned':'locked')+'"><div class="bi">'+b.ico+'</div><div class="bn">'+(zh?b.zh[0]:b.en[0])+'</div><div class="bd">'+(zh?b.zh[1]:b.en[1])+'</div>'+(e?'<div class="bel">'+t('Earned!','已获得！')+'</div>':'')+'</div>';
   }).join('');
   renderStreakUI();
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  GUIDANCE
-// ════════════════════════════════════════
-const QUOTES=[
+// ═══════════════════════════════════════════════════
+var QUOTES=[
   {te:'Prayer',tz:'祈愿',en:'In Nichiren Buddhism, it is said that no prayer goes unanswered. But this is very different from having every wish instantly gratified. Viewed from a deeper, longer-term perspective, all your prayers will have served to propel you in the direction of happiness.',zh:'在日莲佛法中，据说没有任何祈愿是没有回应的。但这与每个愿望立即实现大不相同。从更深远的长期视角来看，你所有的祈愿都将推动你走向幸福的方向。',src:'"On Practice" — Daisaku Ikeda (sgi.org)'},
-  {te:'Daimoku',tz:'持题',en:'Nam-myoho-renge-kyo directs us on a course to absolute victory. Nichiren Buddhism enables us to develop a serene life state of inner abundance. Those who embrace faith in Nam-myoho-renge-kyo possess far, far greater wealth than those who have the most staggering fortunes.',zh:'南无妙法莲华经引导我们走向绝对胜利的道路。日莲佛法使我们培养内在丰盛的宁静生命状态。信奉南无妙法莲华经的人所拥有的财富远超最惊人的物质财富。',src:'World Tribune, March 5, 2010 — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Life Force',tz:'生命力',en:'"When you are suffering, chant daimoku. When you are stuck, chant daimoku. If you do, life force and courage will emerge, and you will be able to change your situation. Our Buddhist practice is the engine for victory in all things."',zh:'「当你痛苦时，持题。当你陷入困境时，持题。如果你这样做，生命力和勇气就会涌现，你将能够改变自己的处境。我们的佛法修行是一切胜利的引擎。」',src:'The Wisdom for Creating Happiness and Peace, part 1 — Ikeda Sensei (sgi-usa.org)'},
-  {te:'Faith',tz:'信仰',en:'Buddhism aims to make people free in the most profound sense; its purpose is not to restrict or constrain. Doing gongyo is a right, not an obligation. Because Buddhism entails practice, tenacious efforts are required, but these are all for your own sake.',zh:'佛教旨在以最深刻的意义使人获得自由，其目的不是限制或约束。做勤行是一种权利，而非义务。因为佛教需要修行，必须付出顽强的努力，但这一切都是为了你自己。',src:'Daisaku Ikeda (sgi.org / sokaglobal.org)'},
-  {te:'Human Revolution',tz:'人间革命',en:'A great human revolution in just a single individual will help achieve a change in the destiny of a nation and, further, will enable a change in the destiny of all humankind.',zh:'一个人的伟大的人间革命，必将带来一个国家乃至全人类命运的转变。',src:'The Human Revolution, p. viii — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Daimoku',tz:'持题',en:'Nam-myoho-renge-kyo directs us on a course to absolute victory. Nichiren Buddhism enables us to develop a serene life state of inner abundance. Those who embrace faith in Nam-myoho-renge-kyo possess far, far greater wealth than those who have the most staggering fortunes.',zh:'南无妙法莲华经引导我们走向绝对胜利的道路。日莲佛法使我们能够培养内在丰盛的宁静生命状态。',src:'World Tribune, March 5, 2010 — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Life Force',tz:'生命力',en:'"When you are suffering, chant daimoku. When you are stuck, chant daimoku. If you do, life force and courage will emerge, and you will be able to change your situation. Our Buddhist practice is the engine for victory in all things."',zh:'「当你痛苦时，持题。当你陷入困境时，持题。如果你这样做，生命力和勇气就会涌现，你将能够改变自己的处境。」',src:'The Wisdom for Creating Happiness and Peace — Ikeda Sensei (sgi-usa.org)'},
+  {te:'Faith',tz:'信仰',en:'Buddhism aims to make people free in the most profound sense; its purpose is not to restrict or constrain. Doing gongyo is a right, not an obligation. Because Buddhism entails practice, tenacious efforts are required, but these are all for your own sake.',zh:'佛教旨在以最深刻的意义使人获得自由，其目的不是限制或约束。做勤行是一种权利，而非义务。因为佛教需要修行，但这一切都是为了你自己。',src:'Daisaku Ikeda (sgi.org)'},
+  {te:'Human Revolution',tz:'人间革命',en:'A great human revolution in just a single individual will help achieve a change in the destiny of a nation and, further, will enable a change in the destiny of all humankind.',zh:'一个人的伟大的人间革命，必将带来一个国家乃至全人类命运的转变。',src:'The Human Revolution — Daisaku Ikeda (sgi-usa.org)'},
   {te:'Mentor & Disciple',tz:'师弟关系',en:'As long as the lives of mentor and disciple remain engaged in shared struggle, the spirit of the Lotus Sutra — the teaching of universal enlightenment — will live on.',zh:'只要师弟的生命持续在共同奋斗中相连，莲华经的精神——普遍觉悟的教义——就将永存。',src:'World Tribune, June 3, 2011 — Daisaku Ikeda (exhibits.sgi-usa.org)'},
-  {te:'Chanting with Courage',tz:'勇敢持题',en:'Harmoniously and courageously advance with the pride that you and I — all of us — are noble entities of the Mystic Law, and continue chanting daimoku like a roaring lion for oneself and others.',zh:'以你我——我们所有人——都是妙法尊贵存在的自豪，和谐而勇敢地前进，继续像狮子一样为自己和他人响彻持题。',src:'2022 Leaders Meeting — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Earnest Prayer',tz:'诚心祈愿',en:'Earnest chanting is the wellspring for the energy to challenge these things.',zh:'诚心的持题是挑战一切困难的能量源泉。',src:'The New Human Revolution, vol. 1, p. 268 — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Victory in Life',tz:'人生胜利',en:'The purpose of our faith and practice is to achieve happiness and victory in our lives. This is the reality of the Buddhism of Nichiren Daishonin, the one and eternal Buddha of the Latter Day of the Law.',zh:'我们信仰与修行的目的是在生命中获得幸福与胜利。这是末法时代唯一永恒的佛——日莲大圣人佛法的现实。',src:'World Tribune, March 5, 2010 — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Buddhist Study',tz:'学习佛法',en:'The purpose of reading the Gosho and studying the principles of Buddhism is so that we can encourage the person in front of us, bring forth the wisdom to overcome problems, and manifest the life state of Buddhahood.',zh:'阅读御书、学习佛法原理的目的，是为了能够鼓励眼前的人，发挥智慧克服困难，并展现出佛性的生命状态。',src:'The Youth and the Writings of Nichiren Daishonin, pp. 84–85 — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Chanting with Courage',tz:'勇敢持题',en:'Harmoniously and courageously advance with the pride that you and I are noble entities of the Mystic Law, and continue chanting daimoku like a roaring lion for oneself and others.',zh:'以你我都是妙法尊贵存在的自豪，和谐而勇敢地前进，继续像狮子一样为自己和他人响彻持题。',src:'2022 Leaders Meeting — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Earnest Prayer',tz:'诚心祈愿',en:'Earnest chanting is the wellspring for the energy to challenge these things.',zh:'诚心的持题是挑战一切困难的能量源泉。',src:'The New Human Revolution — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Victory in Life',tz:'人生胜利',en:'The purpose of our faith and practice is to achieve happiness and victory in our lives.',zh:'我们信仰与修行的目的是在生命中获得幸福与胜利。',src:'World Tribune, March 5, 2010 — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Buddhist Study',tz:'学习佛法',en:'The purpose of reading the Gosho and studying the principles of Buddhism is so that we can encourage the person in front of us, bring forth the wisdom to overcome problems, and manifest the life state of Buddhahood.',zh:'阅读御书、学习佛法原理的目的，是为了能够鼓励眼前的人，发挥智慧克服困难，并展现出佛性的生命状态。',src:'The Youth and the Writings of Nichiren Daishonin — Daisaku Ikeda (sgi-usa.org)'},
   {te:'Hope',tz:'希望',en:'If you have no hope, create some. If the world around you is dark, be the sun that illuminates all.',zh:'如果你没有希望，就创造希望。如果你周围的世界是黑暗的，就成为照亮一切的太阳。',src:'Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Courageous Action',tz:'勇敢行动',en:'By chanting sincere daimoku and taking courageous action, you can reveal your true self and the path forward that is uniquely yours. Challenge yourself and open up that pathway.',zh:'通过诚心持题和采取勇敢行动，你能够展现真实的自我以及属于你独特的前进道路。挑战自己，开辟那条道路。',src:'World Tribune, June 16, 2023 — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Strong Prayer',tz:'强烈祈愿',en:'Strong prayer makes the impossible possible. Let\'s charge ahead with an invincible spirit!',zh:'强烈的祈愿使不可能成为可能。让我们以不屈不挠的精神奋勇前进！',src:'"To My Friends," Seikyo Shimbun — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Our Vow',tz:'我们的誓愿',en:'Let\'s take to heart the Daishonin\'s words, "This is my vow, and I will never forsake it!" Aiming for the glorious summit of kosen-rufu, let\'s encourage one another and continue to walk the path of our vow.',zh:'让我们铭记大圣人的话语：「此乃我之誓愿，永不放弃！」以广宣流布的光辉顶峰为目标，让我们相互鼓励，继续走在誓愿的道路上。',src:'"To My Friends," Seikyo Shimbun — Daisaku Ikeda (sgi-usa.org)'},
-  {te:'Gratitude',tz:'感恩',en:'I am praying earnestly that all of you, my dear fellow members of the Soka family, each in the sphere of your own vow and mission, will create a record of brilliant achievement in leading lives of complete fulfillment.',zh:'我真诚地祈愿你们所有人——我亲爱的创价大家庭的同志们——每个人都在自己誓愿与使命的领域中，创造出辉煌成就的记录，过上圆满充实的生活。',src:'FNCC Ikeda Hall — Daisaku Ikeda (exhibits.sgi-usa.org)'},
+  {te:'Courageous Action',tz:'勇敢行动',en:'By chanting sincere daimoku and taking courageous action, you can reveal your true self and the path forward that is uniquely yours.',zh:'通过诚心持题和采取勇敢行动，你能够展现真实的自我以及属于你独特的前进道路。',src:'World Tribune, June 16, 2023 — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Strong Prayer',tz:'强烈祈愿',en:"Strong prayer makes the impossible possible. Let's charge ahead with an invincible spirit!",zh:'强烈的祈愿使不可能成为可能。让我们以不屈不挠的精神奋勇前进！',src:'"To My Friends," Seikyo Shimbun — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Our Vow',tz:'我们的誓愿',en:"Let us take to heart the Daishonin's words: 'This is my vow, and I will never forsake it!' Aiming for the glorious summit of kosen-rufu, let us encourage one another.",zh:'让我们铭记大圣人的话语：「此乃我之誓愿，永不放弃！」以广宣流布的光辉顶峰为目标，让我们相互鼓励。',src:'"To My Friends," Seikyo Shimbun — Daisaku Ikeda (sgi-usa.org)'},
+  {te:'Gratitude',tz:'感恩',en:'I am praying earnestly that all of you, my dear fellow members of the Soka family, each in the sphere of your own vow and mission, will create a record of brilliant achievement.',zh:'我真诚地祈愿你们所有人——我亲爱的创价大家庭的同志们——每个人都在自己誓愿与使命的领域中，创造出辉煌成就的记录。',src:'FNCC Ikeda Hall — Daisaku Ikeda (exhibits.sgi-usa.org)'}
 ];
 function renderGuidance(){
-  const dy=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
-  const q=QUOTES[dy%QUOTES.length];const zh=S.lang==='zh';
-  const lc=zh?'zh-CN':'en-SG';
+  var dy=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
+  var q=QUOTES[dy%QUOTES.length],zh=S.lang==='zh',lc=zh?'zh-CN':'en-SG';
   document.getElementById('gdyDate').textContent=new Date().toLocaleDateString(lc,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('gdyTheme').textContent=zh?q.tz:q.te;
-  const el=document.getElementById('gdyQuote');el.textContent=zh?q.zh:q.en;el.className='qt'+(zh?' zh':'');
+  var el=document.getElementById('gdyQuote');el.textContent=zh?q.zh:q.en;el.className='qt'+(zh?' zh':'');
   document.getElementById('gdySrc').textContent=q.src;
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  PRAYERS
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function showPrayersView(){
-  const c=document.getElementById('pvCont');
+  var c=document.getElementById('pvCont');
   c.className='pcont'+(S.lang==='zh'?' zh':'');
-  if(S.pImg){c.innerHTML=`<img src="${S.pImg}" alt="prayers">`;}
-  else if(S.pText){
-    c.innerHTML='<p></p>';
-    const p=c.querySelector('p');
-    p.textContent=S.pText;
-    // Font size follows the app font-size setting via CSS var; no hardcoded override
-    p.style.fontSize='var(--fs-base)';
-    p.style.lineHeight='1.9';
-  }else{
-    c.innerHTML=`<p style="color:var(--muted)">${t('No prayers set yet.\nGo to Settings → Edit Victorious Prayers.','还未设定祈愿。\n请前往设置 → 编辑胜利祈愿。')}</p>`;
-  }
+  if(S.pImg){c.innerHTML='<img src="'+S.pImg+'" alt="prayers">';}
+  else if(S.pText){c.innerHTML='<p></p>';c.querySelector('p').textContent=S.pText;c.querySelector('p').style.fontSize='var(--fs-base)';}
+  else{c.innerHTML='<p style="color:var(--muted)">'+t('No prayers set yet.\nGo to Settings.','还未设定祈愿。\n请前往设置。')+'</p>';}
   openMo('pvMo');
 }
-function openPrayersEdit(){
-  document.getElementById('pTxtIn').value=S.pText||'';
-  document.getElementById('upZone').textContent=t('📷 Tap to upload prayer image','📷 点击上传祈愿图片');
-  openMo('peMo');
-}
-function savePrayers(){
-  S.pText=document.getElementById('pTxtIn').value;
-  if(!document.getElementById('upZone').textContent.includes('✅'))S.pImg=null;
-  save();closeMo('peMo');showToast(t('Prayers saved!','祈愿已保存！'));
-}
-function handleImg(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{S.pImg=e.target.result;S.pText='';document.getElementById('pTxtIn').value='';document.getElementById('upZone').textContent='✅ '+t('Image uploaded','图片已上传');};
-  reader.readAsDataURL(file);
-}
+function openPrayersEdit(){document.getElementById('pTxtIn').value=S.pText||'';document.getElementById('upZone').textContent=t('📷 Tap to upload prayer image','📷 点击上传祈愿图片');openMo('peMo');}
+function savePrayers(){S.pText=document.getElementById('pTxtIn').value;if(!document.getElementById('upZone').textContent.includes('✅'))S.pImg=null;save();closeMo('peMo');showToast(t('Prayers saved!','祈愿已保存！'));}
+function handleImg(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){S.pImg=e.target.result;S.pText='';document.getElementById('pTxtIn').value='';document.getElementById('upZone').textContent='✅ '+t('Image uploaded','图片已上传');};reader.readAsDataURL(file);}
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  SETTINGS
-// ════════════════════════════════════════
-function setTheme(th){
-  S.theme=th;
-  document.body.classList.toggle('dark',th==='dark');
-  document.getElementById('btnLight').classList.toggle('active',th==='light');
-  document.getElementById('btnDark').classList.toggle('active',th==='dark');
-  save();
-  // Chart needs rebuild to pick up new grid colours
-  if(document.getElementById('page-history').classList.contains('active'))buildChart();
-}
+// ═══════════════════════════════════════════════════
+function setTheme(th){S.theme=th;document.body.classList.toggle('dark',th==='dark');document.getElementById('btnLight').classList.toggle('active',th!=='dark');document.getElementById('btnDark').classList.toggle('active',th==='dark');save();}
 function setFontSize(sz){
-  S.fontSize=sz;
-  document.body.classList.remove('large-font','xlarge-font');
+  S.fontSize=sz;document.body.classList.remove('large-font','xlarge-font');
   if(sz==='large')document.body.classList.add('large-font');
   if(sz==='xlarge')document.body.classList.add('xlarge-font');
   document.getElementById('btnMed').classList.toggle('active',sz==='medium');
@@ -1289,164 +880,183 @@ function setTargetMode(mode){
   document.getElementById('sameTargetRow').style.display=mode==='same'?'flex':'none';
   document.getElementById('dayTargets').classList.toggle('show',mode==='diff');
   save();updProg(0);
-}function saveTarget(){
-  const v=parseInt(document.getElementById('targetIn').value);
-  if(!v||v<1){showToast(t('Enter valid minutes','请输入有效分钟数'));return;}
-  S.dailyTargetMin=v;save();refreshTargetDisplay();updProg(0);
-  showToast(t(`Target: ${v} min/day`,`目标：每天 ${v} 分钟`));
 }
+function saveTarget(){var v=parseInt(document.getElementById('targetIn').value);if(!v||v<1){showToast(t('Enter valid minutes','请输入有效分钟数'));return;}S.dailyTargetMin=v;save();refreshTargetDisplay();showToast(t('Target: '+v+' min/day','目标：每天 '+v+' 分钟'));}
 function savePerDayTargets(){
-  const keys=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const ids=['dtMon','dtTue','dtWed','dtThu','dtFri','dtSat','dtSun'];
-  S.perDayTargets={};
-  keys.forEach((k,i)=>{
-    const v=parseInt(document.getElementById(ids[i]).value)||0;
-    S.perDayTargets[k]=v;
-  });
-  save();refreshTargetDisplay();updProg(0);
-  showToast(t('Per-day targets saved!','每日目标已保存！'));
+  var keys=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],ids=['dtMon','dtTue','dtWed','dtThu','dtFri','dtSat','dtSun'];
+  S.perDayTargets={};keys.forEach(function(k,i){S.perDayTargets[k]=parseInt(document.getElementById(ids[i]).value)||0;});
+  save();refreshTargetDisplay();showToast(t('Per-day targets saved!','每日目标已保存！'));
 }
 function refreshTargetDisplay(){
-  // tcVal shows target; tcSub is always owned by updProg (shows live chanted amount)
-  // Just update the inputs in settings with saved values
-  const v=getTodayTarget();
-  document.getElementById('tcVal').textContent=v?`${v}m`:'—';
-  // Do NOT set tcSub here — updProg manages that to show live chanted minutes
+  var v=getTodayTarget(),tcV=document.getElementById('tcVal');
+  if(tcV)tcV.textContent=v?(v+'m'):'—';
   if(S.targetMode==='same'&&S.dailyTargetMin)document.getElementById('targetIn').value=S.dailyTargetMin;
   if(S.targetMode==='diff'&&S.perDayTargets){
-    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((k,i)=>{
-      const ids=['dtMon','dtTue','dtWed','dtThu','dtFri','dtSat','dtSun'];
-      const el=document.getElementById(ids[i]);if(el&&S.perDayTargets[k])el.value=S.perDayTargets[k];
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(function(k,i){
+      var ids=['dtMon','dtTue','dtWed','dtThu','dtFri','dtSat','dtSun'];
+      var el=document.getElementById(ids[i]);if(el&&S.perDayTargets[k])el.value=S.perDayTargets[k];
     });
   }
-  // Refresh progress bar with current committed seconds (0 for live since timer handles that)
-  updProg(isC ? Math.floor(elMs/1000) : 0);
+  updProg(isC?Math.floor(elMs/1000):0);
 }
-
-function setLang(lang){
-  S.lang=lang;
-  document.getElementById('btnEn').classList.toggle('active',lang==='en');
-  document.getElementById('btnZh').classList.toggle('active',lang==='zh');
-  save();applyLang();
-}
+function setLang(lang){S.lang=lang;document.getElementById('btnEn').classList.toggle('active',lang==='en');document.getElementById('btnZh').classList.toggle('active',lang!=='en');save();applyLang();}
 function t(en,zh){return S.lang==='zh'?zh:en;}
 
 function applyLang(){
-  const zh=S.lang==='zh';
-  const m={
-    navChant:zh?'持题':'Chant',navHistory:zh?'记录':'History',
-    navChart:zh?'图表':'Chart',navGuidance:zh?'指导':'Guidance',
-    pBtn:zh?'胜利祈愿':'Victorious Prayers',
-    tcLbl:zh?'今日目标':"TODAY'S TARGET",
-    tdLbl:zh?'今日题目数':"TODAY'S DAIMOKU",
-    tdSub:zh?'约每分钟50句':'≈ 50 daimoku/min',
+  var zh=S.lang==='zh';
+  var m={
+    navChant:zh?'持题':'Chant',navHistory:zh?'记录':'History',navChart:zh?'图表':'Chart',navGuidance:zh?'指导':'Guidance',
+    pBtn:zh?'胜利祈愿':'Victorious Prayers',tcLbl:zh?'今日目标':"TODAY'S TARGET",tdLbl:zh?'今日题目数':"TODAY'S DAIMOKU",
     tDay:zh?'每天':'Day',tWeek:zh?'每周':'Week',tMonth:zh?'每月':'Month',
-    addBtnLbl:zh?'添加过去记录':'Add past session',
-    badgeLbl:zh?'成就徽章':'ACHIEVEMENT BADGES',
+    addBtnLbl:zh?'添加过去记录':'Add past session',badgeLbl:zh?'成就徽章':'ACHIEVEMENT BADGES',
     dcTitle:zh?'持题图表':'DAIMOKU CHART',dcSub:zh?'每格 = 20分钟 = 1,000句':'1 box = 20 min = 1,000 daimoku',
-    legF:zh?'已完成':'Chanted',legE:zh?'剩余':'Remaining',
-    rcBtn:zh?'重置持题图表':'Reset Daimoku Chart',
-    gdyLbl:zh?'今日指导':"Today's Guidance",
-    gdyRotLbl:zh?'指导每日更新':'Guidance rotates daily',
-    sgLang:zh?'语言':'Language',srLang:zh?'显示语言':'Display Language',
+    legF:zh?'已完成':'Chanted',legE:zh?'剩余':'Remaining',rcBtn:zh?'重置持题图表':'Reset Daimoku Chart',
+    gdyLbl:zh?'今日指导':"Today's Guidance",gdyRotLbl:zh?'指导每日更新':'Guidance rotates daily',
+    sgAccount:zh?'账户':'Account',sgLang:zh?'语言':'Language',srLang:zh?'显示语言':'Display Language',
     sgAppear:zh?'外观':'Appearance',srTheme:zh?'背景主题':'Background Theme',srFont:zh?'字体大小':'Font Size',
-    btnLight:zh?'浅色':'Light',btnDark:zh?'深色':'Dark',
-    btnMed:zh?'小字':'Small',btnLg:zh?'中字':'Medium',btnXLg:zh?'大字':'Large',
-    sgTarget:zh?'每日目标':'Daily Target',srTarget:zh?'持题目标（分钟）':'Chanting target (minutes)',
-    srTargetSub:zh?'显示为持题页进度条':'Shown as progress bar on Chant screen',
+    btnLight:zh?'浅色':'Light',btnDark:zh?'深色':'Dark',btnMed:zh?'小字':'Small',btnLg:zh?'中字':'Medium',btnXLg:zh?'大字':'Large',
+    sgTarget:zh?'每日目标':'Daily Target',srTarget:zh?'持题目标（分钟）':'Chanting target (minutes)',srTargetSub:zh?'显示为进度条':'Progress bar on Chant screen',
     btnSameDay:zh?'每天相同':'Same every day',btnDiffDay:zh?'按天设置':'Different per day',
     svBtn:zh?'保存':'Save',svPerDayBtn:zh?'全部保存':'Save All',
-    lMon:zh?'周一':'Mon',lTue:zh?'周二':'Tue',lWed:zh?'周三':'Wed',lThu:zh?'周四':'Thu',
-    lFri:zh?'周五':'Fri',lSat:zh?'周六':'Sat',lSun:zh?'周日':'Sun',
+    lMon:zh?'周一':'Mon',lTue:zh?'周二':'Tue',lWed:zh?'周三':'Wed',lThu:zh?'周四':'Thu',lFri:zh?'周五':'Fri',lSat:zh?'周六':'Sat',lSun:zh?'周日':'Sun',
     sgPrayers:zh?'祈愿':'Prayers',srPrayers:zh?'编辑胜利祈愿':'Edit Victorious Prayers',srPrayersSub:zh?'设置文字或上传图片':'Set text or upload image',
-    sgData:zh?'数据':'Data',srReset:zh?'重置所有数据':'Reset all data',
-    srResetSub:zh?'清除所有记录、连续记录、图表及祈愿':'Clears all sessions, streak, chart & prayers',
+    sgData:zh?'数据':'Data',srReset:zh?'重置所有数据':'Reset all data',srResetSub:zh?'清除所有记录、连续记录、图表及祈愿':'Clears all sessions, streak, chart & prayers',
     pvTitle:zh?'我的胜利祈愿':'My Victorious Prayers',pvClose:zh?'关闭':'Close',
-    peTitle:zh?'✏️ 编辑胜利祈愿':'✏️ Edit Victorious Prayers',
-    orLbl:zh?'— 或上传图片 —':'— or upload an image —',
-    upZone:zh?'📷 点击上传祈愿图片':'📷 Tap to upload prayer image',
+    peTitle:zh?'编辑胜利祈愿':'Edit Victorious Prayers',orLbl:zh?'— 或上传图片 —':'— or upload an image —',
     peCancelBtn:zh?'取消':'Cancel',peSaveBtn:zh?'保存':'Save',
-    addTitle:zh?'➕ 添加过去记录':'➕ Add Past Session',
-    addDateLbl:zh?'日期':'Date',addMinLbl:zh?'时长（分钟，最多1440）':'Duration (minutes, max 1440)',addSaveBtn:zh?'添加':'Add',
-    rmTitle:zh?'⚠️ 重置所有数据？':'⚠️ Reset All Data?',
-    rmDesc:zh?'这将永久删除所有持题记录、连续记录、图表进度及祈愿内容，无法撤销。':'This will permanently delete ALL chanting sessions, history, streak, Daimoku Chart progress, and your saved Prayers. This cannot be undone.',
-    crmTitle:zh?'⚠️ 重置持题图表？':'⚠️ Reset Daimoku Chart?',
-    crmDesc:zh?'这将重置图表格数并永久删除所有持题历史记录和连续记录。您的祈愿内容将保留。无法撤销。':'This will reset your Chart boxes to zero AND delete all chanting history records and streak. Your saved Prayers will be kept. This cannot be undone.',
-    scTitle:zh?'持题完成！':'Session Complete!',
-    scOk:zh?'南无妙法莲华经！':'Nam-myoho-renge-kyo!',
-    delTitle:zh?'🗑️ 删除记录？':'🗑️ Delete Session?',
-    delDesc:zh?'这将永久删除此持题记录，并相应调整图表进度。此操作不可撤销。':'This will permanently remove this chanting session and adjust your Daimoku Chart accordingly. This cannot be undone.',
-    delCancel:zh?'取消':'Cancel',
-    delConfirm:zh?'删除':'Delete',
-    ctLine:zh?'折线':'Line',ctBar:zh?'柱状':'Bar',
-    hmTime:zh?'时间':'Time',hmDai:zh?'句数':'Daimoku',
+    addTitle:zh?'添加过去记录':'Add Past Session',addDateLbl:zh?'日期':'Date',addMinLbl:zh?'时长（分钟，最多1440）':'Duration (minutes, max 1440)',addSaveBtn:zh?'添加':'Add',
+    rmTitle:zh?'重置所有数据？':'Reset All Data?',rmDesc:zh?'这将永久删除所有记录、连续记录、图表和祈愿，无法撤销。':'This permanently deletes ALL sessions, history, streak, Daimoku Chart, and Prayers.',
+    crmTitle:zh?'重置持题图表？':'Reset Daimoku Chart?',crmDesc:zh?'这将重置图表并删除历史记录。祈愿将保留。无法撤销。':'Resets chart boxes and deletes all history. Prayers are kept.',
+    scTitle:zh?'持题完成！':'Session Complete!',scOk:zh?'南无妙法莲华经！':'Nam-myoho-renge-kyo!',
+    delTitle:zh?'删除记录？':'Delete Session?',delDesc:zh?'这将永久删除此持题记录并相应调整图表。无法撤销。':'Permanently removes this session and adjusts Daimoku Chart.',
+    delCancel:zh?'取消':'Cancel',delConfirm:zh?'删除':'Delete',
+    guestWarnTxt:zh?'访客模式：数据仅存储在本设备上。清除浏览器缓存将删除数据。在设置中登录以同步跨设备。':'Guest mode: data stored on this device only. Clearing browser cache will erase it. Sign in via Settings to sync.',
+    aoSub:zh?'登录以跨设备同步数据，或以访客身份继续。':'Sign in to sync your data across devices, or continue as a guest.',
+    aoNote:zh?'访客模式仅在本设备存储数据。清除浏览器缓存将删除数据。':'Guest mode stores data on this device only. Clearing your browser cache will erase it.',
+    alEmail:zh?'电子邮件':'Email',alPwd:zh?'密码':'Password',alPwd2:zh?'确认密码':'Confirm Password',
+    atLogin:zh?'登录':'Sign In',atReg:zh?'注册':'Register',authSubmitBtn:zh?'登录':'Sign In',guestBtn:zh?'以访客身份继续':'Continue as Guest',
+    googleBtnTxt:zh?'使用Google继续':'Continue with Google',
+    facebookBtnTxt:zh?'使用Facebook继续':'Continue with Facebook',
+    authDivOr:zh?'&#x2014; 或使用以下方式登录 &#x2014;':'&#x2014; or sign in with &#x2014;'
   };
-  Object.keys(m).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=m[id];});
+  Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=m[id];});
   if(!isC)document.getElementById('cbLbl').textContent=zh?'开始':'START';
-  updateDateDisplay();
-  renderGuidance();renderBadges();renderHistory();renderDmGrid();
-  // Refresh tcVal (target number) then let updProg re-render tcSub (chanted amount)
-  const v=getTodayTarget();
-  document.getElementById('tcVal').textContent=v?`${v}m`:'—';
-  updProg(isC?Math.floor(elMs/1000):0);
+  updateDateDisplay();renderGuidance();renderBadges();renderHistory();refreshTargetDisplay();renderDmGrid();
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════
+var _authTab='login';
+function showAuthOverlay(){document.getElementById('authOverlay').style.display='flex';}
+function hideAuthOverlay(){document.getElementById('authOverlay').style.display='none';}
+
+function signInWithProvider(provider){
+  if(!_sb){document.getElementById('authErr').textContent='Supabase not configured. See Settings > Supabase Setup.';return;}
+  var btnIds={google:'googleBtnTxt',facebook:'facebookBtnTxt'};
+  var el=document.getElementById(btnIds[provider]);
+  if(el)el.textContent=t('Redirecting...','正在跳转...');
+  _sb.auth.signInWithOAuth({provider:provider,options:{redirectTo:window.location.href}})
+    .catch(function(e){
+      document.getElementById('authErr').textContent=e.message||(provider+' sign-in failed.');
+      var labels={google:t('Continue with Google','使用Google继续'),facebook:t('Continue with Facebook','使用Facebook继续')};
+      if(el)el.textContent=labels[provider];
+    });
+}
+function switchAuthTab(tab){
+  _authTab=tab;
+  document.getElementById('atLogin').classList.toggle('active',tab==='login');
+  document.getElementById('atReg').classList.toggle('active',tab==='register');
+  document.getElementById('authSubmitBtn').textContent=tab==='login'?t('Sign In','登录'):t('Create Account','创建账户');
+  document.getElementById('authPwd2Wrap').style.display=tab==='register'?'flex':'none';
+  document.getElementById('authErr').textContent='';
+}
+function authSubmit(){
+  var email=document.getElementById('authEmail').value.trim();
+  var pwd=document.getElementById('authPwd').value;
+  var errEl=document.getElementById('authErr');
+  errEl.textContent='';
+  if(!email||!pwd){errEl.textContent='Please enter email and password.';return;}
+  if(!_sb){errEl.textContent='Supabase not configured. See Settings > Supabase Setup.';return;}
+  if(_authTab==='register'){
+    var pwd2=document.getElementById('authPwd2').value;
+    if(pwd!==pwd2){errEl.textContent='Passwords do not match.';return;}
+    if(pwd.length<6){errEl.textContent='Password must be at least 6 characters.';return;}
+    document.getElementById('authSubmitBtn').textContent='Creating...';
+    _sb.auth.signUp({email:email,password:pwd}).then(function(r){
+      if(r.error){errEl.textContent=r.error.message;document.getElementById('authSubmitBtn').textContent=t('Create Account','创建账户');return;}
+      errEl.style.color='var(--green)';errEl.textContent=t('Account created! Check your email, then sign in.','账户已创建！请查收邮件，然后登录。');
+      document.getElementById('authSubmitBtn').textContent=t('Create Account','创建账户');switchAuthTab('login');
+    });
+    return;
+  }
+  document.getElementById('authSubmitBtn').textContent=t('Signing in...','登录中...');
+  _sb.auth.signInWithPassword({email:email,password:pwd}).then(function(r){
+    if(r.error){errEl.textContent=r.error.message;document.getElementById('authSubmitBtn').textContent=t('Sign In','登录');return;}
+    onSignedIn(r.data.user);
+  });
+}
+function onSignedIn(user){
+  _user=user;_isGuest=false;
+  sbLoad(user.id,function(cloudData){
+    if(cloudData&&(cloudData.sessions||[]).length>=(S.sessions||[]).length){
+      var keep={lang:S.lang,theme:S.theme,fontSize:S.fontSize};
+      S=Object.assign({},DS,cloudData,keep);
+    } else if((S.sessions||[]).length>0){
+      sbSave(user.id,S);showToast('Guest data synced to your account!');
+    }
+    (S.sessions||[]).forEach(function(s,i){if(!s.id)s.id='s'+(s.ts||Date.now()+i);});
+    save();hideAuthOverlay();refreshAuthUI();initApp();
+  });
+}
+function continueAsGuest(){_isGuest=true;_user=null;hideAuthOverlay();refreshAuthUI();initApp();}
+function signOut(){if(_sb)_sb.auth.signOut().catch(function(){});_user=null;_isGuest=true;refreshAuthUI();showToast(t('Signed out.','已登出。'));}
+function refreshAuthUI(){
+  var warn=document.getElementById('guestWarn');
+  if(warn)warn.style.display=_isGuest?'flex':'none';
+  var panel=document.getElementById('accountPanel');if(!panel)return;
+  if(_isGuest){
+    panel.innerHTML='<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;line-height:1.6">'+t('You are in Guest mode. Data is stored on this device only. Clearing browser cache will erase it.','您处于访客模式。数据仅存储在本设备上。清除浏览器缓存将删除数据。')+'</div><button class="auth-btn" onclick="showAuthOverlay()" style="margin-bottom:0">'+t('Sign In / Register','登录 / 注册')+'</button>';  } else {
+    panel.innerHTML='<div class="user-badge"><div class="sync-dot"></div><div class="ub-email">'+(_user?_user.email:'')+'</div><button class="signout-btn" onclick="signOut()">'+t('Sign out','退出')+'</button></div><div style="font-size:var(--fs-xs);color:var(--muted)">'+t('Data syncs to cloud on every session.','每次持题后数据同步至云端。')+'</div>';
+  }
+}
+function saveSupabaseConfig(){
+  var u=document.getElementById('sbUrl').value.trim(),k=document.getElementById('sbKey').value.trim();
+  if(!u||!k){showToast(t('Enter both URL and anon key.','请输入URL和匿名密钥。'));return;}
+  localStorage.setItem(SBU,u);localStorage.setItem(SBK,k);initSupabase();
+  showToast(t('Supabase config saved! You can now sign in.','Supabase配置已保存！您现在可以登录。'));
+}
+
+// ═══════════════════════════════════════════════════
 //  RESETS
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function confirmResetAll(){openMo('resetMo');}
 function confirmChartReset(){openMo('cResetMo');}
+function doResetAll(){var l=S.lang,th=S.theme,fs=S.fontSize;S=Object.assign({},DS,{lang:l,theme:th,fontSize:fs});save();closeMo('resetMo');closeMo('cResetMo');document.getElementById('timerDisp').textContent='00:00:00';updProg(0);refreshTargetDisplay();renderHistory();renderBadges();renderDmGrid();renderStreakUI();showToast(t('All data reset.','所有数据已重置。'));}
+function doResetChart(){S.sessions=[];S.streak=0;S.lastChantDate=null;S.boxesFilled=0;S.partialMinutes=0;save();closeMo('cResetMo');renderHistory();renderBadges();renderDmGrid();renderStreakUI();updProg(0);showToast(t('Chart & history reset. Prayers kept.','图表已重置，祈愿已保留。'));}
 
-function doResetAll(){
-  const l=S.lang,th=S.theme,fs=S.fontSize;
-  S={...DS,lang:l,theme:th,fontSize:fs};
-  save();closeMo('resetMo');
-  document.getElementById('timerDisp').textContent='00:00:00';
-  updProg(0);refreshTargetDisplay();renderHistory();renderBadges();renderDmGrid();renderStreakUI();
-  showToast(t('All data reset.','所有数据已重置。'));
-}
-function doResetChart(){
-  // Keep prayers
-  S.sessions=[];S.streak=0;S.lastChantDate=null;S.boxesFilled=0;S.partialMinutes=0;
-  save();closeMo('cResetMo');
-  renderHistory();renderBadges();renderDmGrid();renderStreakUI();updProg(0);
-  showToast(t('Chart & history reset. Prayers kept.','图表已重置，祈愿已保留。'));
-}
-
-// ════════════════════════════════════════
-//  NAV
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  NAV & MODALS
+// ═══════════════════════════════════════════════════
 function showPage(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.ni').forEach(function(x){x.classList.remove('active');});
   document.getElementById('page-'+p).classList.add('active');
-  const navEl=document.getElementById('nav-'+p);
-  if(navEl)navEl.classList.add('active');
-  if(p==='history')renderHistory();
-  if(p==='badges')renderBadges();
-  if(p==='chart')renderDmGrid();
-  if(p==='guidance')renderGuidance();
+  var nav=document.getElementById('nav-'+p);if(nav)nav.classList.add('active');
+  if(p==='history')renderHistory();if(p==='badges')renderBadges();
+  if(p==='chart')renderDmGrid();if(p==='guidance')renderGuidance();
 }
-
-// ════════════════════════════════════════
-//  MODALS & TOAST
-// ════════════════════════════════════════
 function openMo(id){document.getElementById(id).classList.add('show');}
 function closeMo(id){document.getElementById(id).classList.remove('show');}
-document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+document.querySelectorAll('.mo').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('show');});});
+var toastT;
+function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show');},2800);}
 
-let toastT;
-function showToast(msg){
-  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);
-}
-
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  INIT
-// ════════════════════════════════════════
-(function init(){
+// ═══════════════════════════════════════════════════
+function initApp(){
   document.getElementById('addDate').value=todayKey();
-  // Apply saved theme & font
   if(S.theme==='dark')document.body.classList.add('dark');
   document.body.classList.remove('large-font','xlarge-font');
   if(S.fontSize==='large')document.body.classList.add('large-font');
@@ -1456,25 +1066,39 @@ function showToast(msg){
   document.getElementById('btnMed').classList.toggle('active',!S.fontSize||S.fontSize==='medium');
   document.getElementById('btnLg').classList.toggle('active',S.fontSize==='large');
   document.getElementById('btnXLg').classList.toggle('active',S.fontSize==='xlarge');
-  // Apply saved target mode UI
-  // Event delegation for delete buttons in history list
-  document.getElementById('listWrap').addEventListener('click',function(e){
-    const btn=e.target.closest('.del-btn');
-    if(btn&&btn.dataset.sid)deleteSession(btn.dataset.sid);
-  });
-
+  document.getElementById('btnEn').classList.toggle('active',S.lang!=='zh');
+  document.getElementById('btnZh').classList.toggle('active',S.lang==='zh');
+  document.getElementById('listWrap').addEventListener('click',function(e){var btn=e.target.closest('.del-btn');if(btn&&btn.dataset.sid)deleteSession(btn.dataset.sid);});
   setTargetMode(S.targetMode||'same');
-  checkStreak();applyLang();renderDmGrid();renderStreakUI();refreshTargetDisplay();
-  updateDateDisplay();
+  checkStreak();applyLang();renderDmGrid();renderStreakUI();refreshTargetDisplay();updateDateDisplay();
+  setInterval(function(){if(!isC)updProg(0);updateDateDisplay();},5000);
+}
 
-  // Passive 1-second tick: keeps chanted-today counter and date fresh
-  // even when no session is running (e.g. after finishing, or on page load)
-  setInterval(()=>{
-    // Always refresh progress display so the "X min (Y boxes) chanted today" is live
-    if(!isC) updProg(0);
-    // Update date at midnight (rare but handles overnight)
-    updateDateDisplay();
-  }, 5000); // every 5s is plenty when not actively chanting (tick() handles per-second during session)
+// Startup: check Supabase session (including OAuth redirect return)
+(function startup(){
+  initSupabase();
+  var savedUrl=localStorage.getItem(SBU)||'',savedKey=localStorage.getItem(SBK)||'';
+  var su=document.getElementById('sbUrl'),sk=document.getElementById('sbKey');
+  if(su)su.value=savedUrl;if(sk)sk.value=savedKey;
+  // Session id migration
+  (S.sessions||[]).forEach(function(s,i){if(!s.id)s.id='s'+(s.ts||Date.now()+i);});
+  save();
+  if(_sb){
+    // getSession handles both normal sessions AND OAuth redirect tokens in URL hash
+    _sb.auth.getSession().then(function(r){
+      if(r.data&&r.data.session&&r.data.session.user){
+        // Clean the URL hash left by OAuth redirect (cosmetic)
+        if(window.location.hash&&window.location.hash.indexOf('access_token')>=0){
+          history.replaceState(null,'',window.location.pathname+window.location.search);
+        }
+        onSignedIn(r.data.session.user);
+      } else {
+        showAuthOverlay();
+      }
+    }).catch(function(){showAuthOverlay();});
+  } else {
+    continueAsGuest();
+  }
 })();
 </script>
 </body>
